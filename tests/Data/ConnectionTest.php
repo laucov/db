@@ -29,8 +29,7 @@
 declare(strict_types=1);
 
 namespace Tests\Data;
- 
-use Laucov\Db\Data\Collection;
+
 use Laucov\Db\Data\Connection;
 use PHPUnit\Framework\TestCase;
  
@@ -147,22 +146,10 @@ class ConnectionTest extends TestCase
         }
     }
 
-    /**
-     * @covers ::__construct
-     */
-    public function testMustUseAValidDriver(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        new Connection('foobar_db', 'foobar');
-    }
-
     protected function setUp(): void
     {
         // Create the connection object.
-        $this->conn = new Connection(
-            driver: 'sqlite',
-            database: ':memory:',
-        );
+        $this->conn = new Connection('sqlite::memory:');
     }
 
     /**

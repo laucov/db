@@ -34,20 +34,6 @@ namespace Laucov\Db\Data;
 class Connection
 {
     /**
-     * DSN available placeholders.
-     */
-    protected array $dsnPlaceholders = ['database'];
-
-    /**
-     * DSN available templates.
-     * 
-     * @var array<string, string>
-     */
-    protected array $dsnTemplates = [
-        'sqlite' => 'sqlite:{database}',
-    ];
-
-    /**
      * PHP Data Object.
      */
     protected \PDO $pdo;
@@ -60,23 +46,14 @@ class Connection
     /**
      * Create the connection instance.
      */
-    public function __construct(string $driver, string $database)
-    {
-        // Get the correct DSN template.
-        if (!array_key_exists($driver, $this->dsnTemplates)) {
-            $message = 'Unsupported PDO driver "%s".';
-            throw new \InvalidArgumentException(sprintf($message, $driver));
-        }
-        $dsn = $this->dsnTemplates[$driver];
-
-        // Fill the DSN template.
-        foreach ($this->dsnPlaceholders as $placeholder) {
-            $value = $$placeholder;
-            $dsn = str_replace("{{$placeholder}}", $value, $dsn);
-        }
-
+    public function __construct(
+        string $dsn,
+        null|string $username = null,
+        null|string $password = null,
+        null|array $options = [],
+    ) {
         // Create the PDO.
-        $this->pdo = new \PDO($dsn, null, null, []);
+        $this->pdo = new \PDO($dsn, $username, $password, $options);
     }
 
     /**
