@@ -43,7 +43,6 @@ class ConstraintTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::__toString
-     * @uses Laucov\Db\Query\Traits\ExpressionCompilerTrait::compileExpression
      */
     public function testCanCreateAndStringify(): void
     {
@@ -54,6 +53,7 @@ class ConstraintTest extends TestCase
                 "'John'",
                 [
                     ComparisonOperator::EQUAL_TO,
+                    ComparisonOperator::NOT_EQUAL_TO,
                     ComparisonOperator::LIKE,
                     ComparisonOperator::NOT_LIKE,
                 ],
@@ -97,6 +97,7 @@ class ConstraintTest extends TestCase
         // Set expecteds values.
         $expected = [
             "first_name = 'John'",
+            "first_name != 'John'",
             "first_name LIKE 'John'",
             "first_name NOT LIKE 'John'",
             "age > 36",

@@ -35,5 +35,6 @@ enum JoinOperator: string
 {
     case LEFT = 'LEFT';
     case RIGHT = 'RIGHT';
+    case FULL = 'FULL';
     case INNER = 'INNER';
 }

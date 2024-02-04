@@ -34,6 +34,7 @@ namespace Laucov\Db\Query;
 enum ComparisonOperator: string
 {
     case EQUAL_TO = '=';
+    case NOT_EQUAL_TO = '!=';
     case GREATER_THAN = '>';
     case GREATER_THAN_OR_EQUAL_TO = '>=';
     case LESS_THAN = '<';
