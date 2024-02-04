@@ -59,12 +59,12 @@ class UpdateStatementTest extends TestCase
     {
         // Test a simple query.
         $expected_a = <<<SQL
-            UPDATE messages
+            UPDATE messages AS m
             SET read_at = '2024-03-04 14:48:32'
             SQL;
         
         // Build.
-        $actual_a = (string) (new UpdateStatement('messages'))
+        $actual_a = (string) (new UpdateStatement('messages', 'm'))
             ->setValue('read_at', "'2024-03-04 14:48:32'");
 
         // Compare.

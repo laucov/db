@@ -52,6 +52,11 @@ class UpdateStatement implements \Stringable
          * Table to update.
          */
         protected string $tableName,
+
+        /**
+         * Updated table alias.
+         */
+        protected null|string $tableAlias = null,
     ) {}
 
     /**
@@ -60,7 +65,9 @@ class UpdateStatement implements \Stringable
     public function __toString(): string
     {
         // Initialize statement.
-        $statement = "UPDATE {$this->tableName}";
+        $statement = $this->tableAlias !== null
+            ? "UPDATE {$this->tableName} AS {$this->tableAlias}"
+            : "UPDATE {$this->tableName}";
 
         // Add updated values.
         if (count($this->values) > 0) {
