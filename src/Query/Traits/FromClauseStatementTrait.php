@@ -31,7 +31,7 @@ namespace Laucov\Db\Query\Traits;
 use Laucov\Db\Query\WhereClause;
 
 /**
- * Handles strings with column names or expressions and its aliases.
+ * Provides methods for manipulating the statement's FROM and WHERE clauses.
  */
 trait FromClauseStatementTrait
 {

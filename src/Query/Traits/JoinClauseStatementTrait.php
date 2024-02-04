@@ -31,7 +31,7 @@ namespace Laucov\Db\Query\Traits;
 use Laucov\Db\Query\JoinClause;
 
 /**
- * Handles strings with column names or expressions and its aliases.
+ * Provides methods for manipulating the statement's JOIN clauses.
  */
 trait JoinClauseStatementTrait
 {
