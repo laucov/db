@@ -26,9 +26,11 @@
  * @copyright © 2024 Laucov Serviços de Tecnologia da Informação Ltda.
  */
 
-namespace Laucov\Db\Query;
+namespace Laucov\Db\Statement;
 
-use Laucov\Db\Query\Traits\JoinClauseStatementTrait;
+use Laucov\Db\Statement\Clause\OrderDirection;
+use Laucov\Db\Statement\Clause\RowOrder;
+use Laucov\Db\Statement\Clause\Traits\JoinClauseStatementTrait;
 
 /**
  * Provides an interface to build a SQL SELECT query.

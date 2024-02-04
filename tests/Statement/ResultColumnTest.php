@@ -28,44 +28,36 @@
 
 declare(strict_types=1);
 
-namespace Tests\Query;
+namespace Tests\Statement;
 
-use Laucov\Db\Query\JoinClause;
+use Laucov\Db\Statement\ResultColumn;
 use PHPUnit\Framework\TestCase;
  
 /**
- * @coversDefaultClass \Laucov\Db\Query\JoinClause
+ * @coversDefaultClass \Laucov\Db\Statement\ResultColumn
  */
-class JoinClauseTest extends TestCase
+class ResultColumnTest extends TestCase
 {
     /**
+     * @covers ::__construct
      * @covers ::__toString
-     * @covers ::addConstraint
-     * @covers ::setLogicalOperator
-     * @covers ::setOn
-     * @uses Laucov\Db\Query\Constraint::__construct
-     * @uses Laucov\Db\Query\Constraint::__toString
      */
     public function testCanCreateAndStringify(): void
     {
-        // Test simple JOIN.
-        $clause_a = new JoinClause();
-        $clause_a
-            ->setOn('LEFT', 'customers')
-            ->addConstraint('customers.id', '=', 'cars.customer_id');
-        $this->assertSame(<<<SQL
-            LEFT JOIN customers
-            ON customers.id = cars.customer_id
-            SQL, (string) $clause_a);
-        
-        // Test joining with alias.
-        $clause_b = new JoinClause();
-        $clause_b
-            ->setOn('INNER', 'customers', 'clients')
-            ->addConstraint('clients.id', '=', 'cars.customer_id');
-        $this->assertSame(<<<SQL
-            INNER JOIN customers AS clients
-            ON clients.id = cars.customer_id
-            SQL, (string) $clause_b);
+        // Test without alias.
+        $this->assertSame(
+            'cars.model',
+            (string) new ResultColumn('cars.model', null),
+        );
+
+        // Test with alias.
+        $this->assertSame(
+            'cars.customer_id AS owner_id',
+            (string) new ResultColumn('cars.customer_id', 'owner_id'),
+        );
+        $this->assertSame(
+            '(COUNT(cars.id)) AS car_amount',
+            (string) new ResultColumn('(COUNT(cars.id))', 'car_amount'),
+        );
     }
 }

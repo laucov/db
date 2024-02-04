@@ -26,33 +26,13 @@
  * @copyright © 2024 Laucov Serviços de Tecnologia da Informação Ltda.
  */
 
-namespace Laucov\Db\Query\Traits;
-
-use Laucov\Db\Query\JoinClause;
+namespace Laucov\Db\Statement\Clause;
 
 /**
- * Provides methods for manipulating the statement's JOIN clauses.
+ * Represents a SQL logical operator.
  */
-trait JoinClauseStatementTrait
+enum LogicalOperator: string
 {
-    use FromClauseStatementTrait;
-
-    /**
-     * Registered JOIN clauses.
-     * 
-     * @var array<JoinClause>
-     */
-    protected array $joinClauses = [];
-
-    /**
-     * Start a JOIN clause.
-     */
-    public function addJoinClause(callable $callback): static
-    {
-        $clause = new JoinClause();
-        $this->joinClauses[] = $clause;
-        call_user_func($callback, $clause);
-
-        return $this;
-    }
+    case AND = 'AND';
+    case OR = 'OR';
 }

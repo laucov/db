@@ -26,13 +26,33 @@
  * @copyright © 2024 Laucov Serviços de Tecnologia da Informação Ltda.
  */
 
-namespace Laucov\Db\Query;
+namespace Laucov\Db\Statement\Clause;
 
 /**
- * Represents a SQL logical operator.
+ * Represents a SQL ordering condition.
  */
-enum LogicalOperator: string
+class RowOrder implements \Stringable
 {
-    case AND = 'AND';
-    case OR = 'OR';
+    /**
+     * Create the row order instance.
+     */
+    public function __construct(
+        /**
+         * Column name.
+         */
+        public readonly string $columnName,
+
+        /**
+         * Order option.
+         */
+        public readonly OrderDirection $direction,
+    ) {}
+
+    /**
+     * Get the row order string representation.
+     */
+    public function __toString(): string
+    {
+        return "{$this->columnName} {$this->direction->value}";
+    }
 }

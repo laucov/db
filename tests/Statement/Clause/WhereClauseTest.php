@@ -28,13 +28,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\Query;
+namespace Tests\Statement\Clause;
 
-use Laucov\Db\Query\WhereClause;
+use Laucov\Db\Statement\Clause\WhereClause;
 use PHPUnit\Framework\TestCase;
  
 /**
- * @coversDefaultClass \Laucov\Db\Query\WhereClause
+ * @coversDefaultClass \Laucov\Db\Statement\Clause\WhereClause
  */
 class WhereClauseTest extends TestCase
 {
@@ -42,8 +42,8 @@ class WhereClauseTest extends TestCase
      * @covers ::__toString
      * @covers ::addConstraint
      * @covers ::setLogicalOperator
-     * @uses Laucov\Db\Query\Constraint::__construct
-     * @uses Laucov\Db\Query\Constraint::__toString
+     * @uses Laucov\Db\Statement\Clause\Constraint::__construct
+     * @uses Laucov\Db\Statement\Clause\Constraint::__toString
      */
     public function testCanCreateAndStringify(): void
     {

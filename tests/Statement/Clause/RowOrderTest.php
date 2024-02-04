@@ -26,15 +26,29 @@
  * @copyright © 2024 Laucov Serviços de Tecnologia da Informação Ltda.
  */
 
-namespace Laucov\Db\Query;
+declare(strict_types=1);
 
+namespace Tests\Statement\Clause;
+
+use Laucov\Db\Statement\Clause\OrderDirection;
+use Laucov\Db\Statement\Clause\RowOrder;
+use PHPUnit\Framework\TestCase;
+ 
 /**
- * Represents a SQL JOIN operator.
+ * @coversDefaultClass \Laucov\Db\Statement\Clause\RowOrder
  */
-enum JoinOperator: string
+class RowOrderTest extends TestCase
 {
-    case LEFT = 'LEFT';
-    case RIGHT = 'RIGHT';
-    case FULL = 'FULL';
-    case INNER = 'INNER';
+    /**
+     * @covers ::__construct
+     * @covers ::__toString
+     */
+    public function testCanCreateAndStringify(): void
+    {
+        $order_a = new RowOrder('created_at', OrderDirection::DESC);
+        $this->assertSame('created_at DESC', (string) $order_a);
+
+        $order_b = new RowOrder('likes', OrderDirection::ASC);
+        $this->assertSame('likes ASC', (string) $order_b);
+    }
 }

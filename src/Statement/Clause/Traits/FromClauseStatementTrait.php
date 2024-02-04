@@ -26,9 +26,9 @@
  * @copyright © 2024 Laucov Serviços de Tecnologia da Informação Ltda.
  */
 
-namespace Laucov\Db\Query\Traits;
+namespace Laucov\Db\Statement\Clause\Traits;
 
-use Laucov\Db\Query\WhereClause;
+use Laucov\Db\Statement\Clause\WhereClause;
 
 /**
  * Provides methods for manipulating the statement's FROM and WHERE clauses.

@@ -26,38 +26,33 @@
  * @copyright © 2024 Laucov Serviços de Tecnologia da Informação Ltda.
  */
 
-declare(strict_types=1);
+namespace Laucov\Db\Statement\Clause\Traits;
 
-namespace Tests\Query;
+use Laucov\Db\Statement\Clause\JoinClause;
 
-use Laucov\Db\Query\ResultColumn;
-use PHPUnit\Framework\TestCase;
- 
 /**
- * @coversDefaultClass \Laucov\Db\Query\ResultColumn
+ * Provides methods for manipulating the statement's JOIN clauses.
  */
-class ResultColumnTest extends TestCase
+trait JoinClauseStatementTrait
 {
-    /**
-     * @covers ::__construct
-     * @covers ::__toString
-     */
-    public function testCanCreateAndStringify(): void
-    {
-        // Test without alias.
-        $this->assertSame(
-            'cars.model',
-            (string) new ResultColumn('cars.model', null),
-        );
+    use FromClauseStatementTrait;
 
-        // Test with alias.
-        $this->assertSame(
-            'cars.customer_id AS owner_id',
-            (string) new ResultColumn('cars.customer_id', 'owner_id'),
-        );
-        $this->assertSame(
-            '(COUNT(cars.id)) AS car_amount',
-            (string) new ResultColumn('(COUNT(cars.id))', 'car_amount'),
-        );
+    /**
+     * Registered JOIN clauses.
+     * 
+     * @var array<JoinClause>
+     */
+    protected array $joinClauses = [];
+
+    /**
+     * Start a JOIN clause.
+     */
+    public function addJoinClause(callable $callback): static
+    {
+        $clause = new JoinClause();
+        $this->joinClauses[] = $clause;
+        call_user_func($callback, $clause);
+
+        return $this;
     }
 }

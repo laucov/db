@@ -26,40 +26,15 @@
  * @copyright © 2024 Laucov Serviços de Tecnologia da Informação Ltda.
  */
 
-namespace Laucov\Db\Query;
-
-use Laucov\Db\Query\Traits\FromClauseStatementTrait;
+namespace Laucov\Db\Statement\Clause;
 
 /**
- * Provides an interface to build a SQL DELETE query.
+ * Represents a SQL JOIN operator.
  */
-class DeleteStatement implements \Stringable
+enum JoinOperator: string
 {
-    use FromClauseStatementTrait;
-
-    /**
-     * Create the DELETE statement instance.
-     */
-    public function __construct(
-        string $table_name,
-        null|string $table_alias = null,
-    ) {
-        $this->setFromClause($table_name, $table_alias);
-    }
-
-    /**
-     * Get the DELETE statement string representation.
-     */
-    public function __toString(): string
-    {
-        // Initialize statement.
-        $statement = "DELETE " . $this->compileFromClause();
-
-        // Add WHERE clause.
-        if ($this->whereClause !== null) {
-            $statement .= "\n{$this->whereClause}";
-        }
-        
-        return $statement;
-    }
+    case LEFT = 'LEFT';
+    case RIGHT = 'RIGHT';
+    case FULL = 'FULL';
+    case INNER = 'INNER';
 }

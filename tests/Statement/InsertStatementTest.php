@@ -28,15 +28,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\Query;
+namespace Tests\Statement;
 
-use Laucov\Db\Query\InsertStatement;
-use Laucov\Db\Query\SelectStatement;
-use Laucov\Db\Query\WhereClause;
+use Laucov\Db\Statement\Clause\WhereClause;
+use Laucov\Db\Statement\InsertStatement;
+use Laucov\Db\Statement\SelectStatement;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass \Laucov\Db\Query\InsertStatement
+ * @coversDefaultClass \Laucov\Db\Statement\InsertStatement
  */
 class InsertStatementTest extends TestCase
 {
@@ -46,17 +46,17 @@ class InsertStatementTest extends TestCase
      * @covers ::addRowValues
      * @covers ::setColumns
      * @covers ::setSelectStatement
-     * @uses Laucov\Db\Query\AbstractConditionalClause::addConstraint
-     * @uses Laucov\Db\Query\Constraint::__construct
-     * @uses Laucov\Db\Query\Constraint::__toString
-     * @uses Laucov\Db\Query\ResultColumn::__construct
-     * @uses Laucov\Db\Query\ResultColumn::__toString
-     * @uses Laucov\Db\Query\SelectStatement::__toString
-     * @uses Laucov\Db\Query\SelectStatement::addResultColumn
-     * @uses Laucov\Db\Query\Traits\JoinClauseStatementTrait::compileFromClause
-     * @uses Laucov\Db\Query\Traits\JoinClauseStatementTrait::setFromClause
-     * @uses Laucov\Db\Query\Traits\JoinClauseStatementTrait::setWhereClause
-     * @uses Laucov\Db\Query\WhereClause::__toString
+     * @uses Laucov\Db\Statement\Clause\AbstractConditionalClause::addConstraint
+     * @uses Laucov\Db\Statement\Clause\Constraint::__construct
+     * @uses Laucov\Db\Statement\Clause\Constraint::__toString
+     * @uses Laucov\Db\Statement\Clause\Traits\JoinClauseStatementTrait::compileFromClause
+     * @uses Laucov\Db\Statement\Clause\Traits\JoinClauseStatementTrait::setFromClause
+     * @uses Laucov\Db\Statement\Clause\Traits\JoinClauseStatementTrait::setWhereClause
+     * @uses Laucov\Db\Statement\Clause\WhereClause::__toString
+     * @uses Laucov\Db\Statement\ResultColumn::__construct
+     * @uses Laucov\Db\Statement\ResultColumn::__toString
+     * @uses Laucov\Db\Statement\SelectStatement::__toString
+     * @uses Laucov\Db\Statement\SelectStatement::addResultColumn
      */
     public function testCanCreateAndStringify(): void
     {

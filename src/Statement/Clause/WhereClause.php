@@ -26,25 +26,24 @@
  * @copyright © 2024 Laucov Serviços de Tecnologia da Informação Ltda.
  */
 
-namespace Laucov\Db\Query;
+namespace Laucov\Db\Statement\Clause;
 
 /**
- * Represents a SQL comparison operator.
+ * Provides an interface to build a SQL WHERE clause.
  */
-enum ComparisonOperator: string
+class WhereClause extends AbstractConditionalClause implements \Stringable
 {
-    case EQUAL_TO = '=';
-    case NOT_EQUAL_TO = '!=';
-    case GREATER_THAN = '>';
-    case GREATER_THAN_OR_EQUAL_TO = '>=';
-    case LESS_THAN = '<';
-    case LESS_THAN_OR_EQUAL_TO = '<=';
-    case IS_NULL = 'IS NULL';
-    case IS_NOT_NULL = 'IS NOT NULL';
-    case LIKE = 'LIKE';
-    case NOT_LIKE = 'NOT LIKE';
-    case IN = 'IN';
-    case NOT_IN = 'NOT IN';
-    case BETWEEN = 'BETWEEN';
-    case NOT_BETWEEN = 'NOT BETWEEN';
+
+    /**
+     * Get the WHERE clause string representation.
+     */
+    public function __toString(): string
+    {
+        // Implode constraints.
+        $constraints = count($this->constraints) > 0
+            ? implode("\n", $this->constraints)
+            : '1';
+        
+        return "WHERE {$constraints}";
+    }
 }

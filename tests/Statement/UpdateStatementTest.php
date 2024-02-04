@@ -28,15 +28,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\Query;
+namespace Tests\Statement;
 
-use Laucov\Db\Query\JoinClause;
-use Laucov\Db\Query\UpdateStatement;
-use Laucov\Db\Query\WhereClause;
+use Laucov\Db\Statement\Clause\JoinClause;
+use Laucov\Db\Statement\Clause\WhereClause;
+use Laucov\Db\Statement\UpdateStatement;
 use PHPUnit\Framework\TestCase;
  
 /**
- * @coversDefaultClass \Laucov\Db\Query\UpdateStatement
+ * @coversDefaultClass \Laucov\Db\Statement\UpdateStatement
  */
 class UpdateStatementTest extends TestCase
 {
@@ -47,13 +47,13 @@ class UpdateStatementTest extends TestCase
      * @covers ::setFromClause
      * @covers ::setValue
      * @covers ::setWhereClause
-     * @uses Laucov\Db\Query\AbstractConditionalClause::addConstraint
-     * @uses Laucov\Db\Query\Constraint::__construct
-     * @uses Laucov\Db\Query\Constraint::__toString
-     * @uses Laucov\Db\Query\JoinClause::__toString
-     * @uses Laucov\Db\Query\JoinClause::setOn
-     * @uses Laucov\Db\Query\Traits\JoinClauseStatementTrait::addJoinClause
-     * @uses Laucov\Db\Query\WhereClause::__toString
+     * @uses Laucov\Db\Statement\Clause\AbstractConditionalClause::addConstraint
+     * @uses Laucov\Db\Statement\Clause\Constraint::__construct
+     * @uses Laucov\Db\Statement\Clause\Constraint::__toString
+     * @uses Laucov\Db\Statement\Clause\JoinClause::__toString
+     * @uses Laucov\Db\Statement\Clause\JoinClause::setOn
+     * @uses Laucov\Db\Statement\Clause\Traits\JoinClauseStatementTrait::addJoinClause
+     * @uses Laucov\Db\Statement\Clause\WhereClause::__toString
      */
     public function testCanBuildAQuery(): void
     {

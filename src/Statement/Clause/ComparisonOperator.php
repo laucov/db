@@ -26,29 +26,25 @@
  * @copyright © 2024 Laucov Serviços de Tecnologia da Informação Ltda.
  */
 
-declare(strict_types=1);
+namespace Laucov\Db\Statement\Clause;
 
-namespace Tests\Query;
-
-use Laucov\Db\Query\OrderDirection;
-use Laucov\Db\Query\RowOrder;
-use PHPUnit\Framework\TestCase;
- 
 /**
- * @coversDefaultClass \Laucov\Db\Query\RowOrder
+ * Represents a SQL comparison operator.
  */
-class RowOrderTest extends TestCase
+enum ComparisonOperator: string
 {
-    /**
-     * @covers ::__construct
-     * @covers ::__toString
-     */
-    public function testCanCreateAndStringify(): void
-    {
-        $order_a = new RowOrder('created_at', OrderDirection::DESC);
-        $this->assertSame('created_at DESC', (string) $order_a);
-
-        $order_b = new RowOrder('likes', OrderDirection::ASC);
-        $this->assertSame('likes ASC', (string) $order_b);
-    }
+    case EQUAL_TO = '=';
+    case NOT_EQUAL_TO = '!=';
+    case GREATER_THAN = '>';
+    case GREATER_THAN_OR_EQUAL_TO = '>=';
+    case LESS_THAN = '<';
+    case LESS_THAN_OR_EQUAL_TO = '<=';
+    case IS_NULL = 'IS NULL';
+    case IS_NOT_NULL = 'IS NOT NULL';
+    case LIKE = 'LIKE';
+    case NOT_LIKE = 'NOT LIKE';
+    case IN = 'IN';
+    case NOT_IN = 'NOT IN';
+    case BETWEEN = 'BETWEEN';
+    case NOT_BETWEEN = 'NOT BETWEEN';
 }

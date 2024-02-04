@@ -26,7 +26,7 @@
  * @copyright © 2024 Laucov Serviços de Tecnologia da Informação Ltda.
  */
 
-namespace Laucov\Db\Query;
+namespace Laucov\Db\Statement;
 
 /**
  * Provides an interface to build a SQL INSERT query.

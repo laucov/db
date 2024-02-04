@@ -26,24 +26,40 @@
  * @copyright © 2024 Laucov Serviços de Tecnologia da Informação Ltda.
  */
 
-namespace Laucov\Db\Query;
+namespace Laucov\Db\Statement;
+
+use Laucov\Db\Statement\Clause\Traits\FromClauseStatementTrait;
 
 /**
- * Provides an interface to build a SQL WHERE clause.
+ * Provides an interface to build a SQL DELETE query.
  */
-class WhereClause extends AbstractConditionalClause implements \Stringable
+class DeleteStatement implements \Stringable
 {
+    use FromClauseStatementTrait;
 
     /**
-     * Get the WHERE clause string representation.
+     * Create the DELETE statement instance.
+     */
+    public function __construct(
+        string $table_name,
+        null|string $table_alias = null,
+    ) {
+        $this->setFromClause($table_name, $table_alias);
+    }
+
+    /**
+     * Get the DELETE statement string representation.
      */
     public function __toString(): string
     {
-        // Implode constraints.
-        $constraints = count($this->constraints) > 0
-            ? implode("\n", $this->constraints)
-            : '1';
+        // Initialize statement.
+        $statement = "DELETE " . $this->compileFromClause();
+
+        // Add WHERE clause.
+        if ($this->whereClause !== null) {
+            $statement .= "\n{$this->whereClause}";
+        }
         
-        return "WHERE {$constraints}";
+        return $statement;
     }
 }

@@ -28,15 +28,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\Query;
+namespace Tests\Statement;
 
-use Laucov\Db\Query\JoinClause;
-use Laucov\Db\Query\SelectStatement;
-use Laucov\Db\Query\WhereClause;
+use Laucov\Db\Statement\Clause\JoinClause;
+use Laucov\Db\Statement\Clause\WhereClause;
+use Laucov\Db\Statement\SelectStatement;
 use PHPUnit\Framework\TestCase;
  
 /**
- * @coversDefaultClass \Laucov\Db\Query\SelectStatement
+ * @coversDefaultClass \Laucov\Db\Statement\SelectStatement
  */
 class SelectStatementTest extends TestCase
 {
@@ -51,17 +51,17 @@ class SelectStatementTest extends TestCase
      * @covers ::setLimit
      * @covers ::setOffset
      * @covers ::setWhereClause
-     * @uses Laucov\Db\Query\AbstractConditionalClause::addConstraint
-     * @uses Laucov\Db\Query\AbstractConditionalClause::setLogicalOperator
-     * @uses Laucov\Db\Query\Constraint::__construct
-     * @uses Laucov\Db\Query\Constraint::__toString
-     * @uses Laucov\Db\Query\JoinClause::__toString
-     * @uses Laucov\Db\Query\JoinClause::setOn
-     * @uses Laucov\Db\Query\ResultColumn::__construct
-     * @uses Laucov\Db\Query\ResultColumn::__toString
-     * @uses Laucov\Db\Query\RowOrder::__construct
-     * @uses Laucov\Db\Query\RowOrder::__toString
-     * @uses Laucov\Db\Query\WhereClause::__toString
+     * @uses Laucov\Db\Statement\Clause\AbstractConditionalClause::addConstraint
+     * @uses Laucov\Db\Statement\Clause\AbstractConditionalClause::setLogicalOperator
+     * @uses Laucov\Db\Statement\Clause\Constraint::__construct
+     * @uses Laucov\Db\Statement\Clause\Constraint::__toString
+     * @uses Laucov\Db\Statement\Clause\JoinClause::__toString
+     * @uses Laucov\Db\Statement\Clause\JoinClause::setOn
+     * @uses Laucov\Db\Statement\Clause\RowOrder::__construct
+     * @uses Laucov\Db\Statement\Clause\RowOrder::__toString
+     * @uses Laucov\Db\Statement\Clause\WhereClause::__toString
+     * @uses Laucov\Db\Statement\ResultColumn::__construct
+     * @uses Laucov\Db\Statement\ResultColumn::__toString
      */
     public function testCanBuildAQuery(): void
     {

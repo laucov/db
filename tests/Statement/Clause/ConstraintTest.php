@@ -28,15 +28,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\Query;
+namespace Tests\Statement\Clause;
 
-use Laucov\Db\Query\ComparisonOperator;
-use Laucov\Db\Query\Constraint;
-use Laucov\Db\Query\LogicalOperator;
+use Laucov\Db\Statement\Clause\ComparisonOperator;
+use Laucov\Db\Statement\Clause\Constraint;
+use Laucov\Db\Statement\Clause\LogicalOperator;
 use PHPUnit\Framework\TestCase;
  
 /**
- * @coversDefaultClass \Laucov\Db\Query\Constraint
+ * @coversDefaultClass \Laucov\Db\Statement\Clause\Constraint
  */
 class ConstraintTest extends TestCase
 {

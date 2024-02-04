@@ -28,14 +28,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Query;
+namespace Tests\Statement;
 
-use Laucov\Db\Query\DeleteStatement;
-use Laucov\Db\Query\WhereClause;
+use Laucov\Db\Statement\Clause\WhereClause;
+use Laucov\Db\Statement\DeleteStatement;
 use PHPUnit\Framework\TestCase;
  
 /**
- * @coversDefaultClass \Laucov\Db\Query\DeleteStatement
+ * @coversDefaultClass \Laucov\Db\Statement\DeleteStatement
  */
 class DeleteStatementTest extends TestCase
 {
@@ -43,12 +43,12 @@ class DeleteStatementTest extends TestCase
      * @covers ::__construct
      * @covers ::__toString
      * @covers ::compileFromClause
-     * @uses Laucov\Db\Query\AbstractConditionalClause::addConstraint
-     * @uses Laucov\Db\Query\Constraint::__construct
-     * @uses Laucov\Db\Query\Constraint::__toString
-     * @uses Laucov\Db\Query\Traits\FromClauseStatementTrait::setFromClause
-     * @uses Laucov\Db\Query\Traits\FromClauseStatementTrait::setWhereClause
-     * @uses Laucov\Db\Query\WhereClause::__toString
+     * @uses Laucov\Db\Statement\Clause\AbstractConditionalClause::addConstraint
+     * @uses Laucov\Db\Statement\Clause\Constraint::__construct
+     * @uses Laucov\Db\Statement\Clause\Constraint::__toString
+     * @uses Laucov\Db\Statement\Clause\Traits\FromClauseStatementTrait::setFromClause
+     * @uses Laucov\Db\Statement\Clause\Traits\FromClauseStatementTrait::setWhereClause
+     * @uses Laucov\Db\Statement\Clause\WhereClause::__toString
      */
     public function testCanCreateAndStringify(): void
     {
