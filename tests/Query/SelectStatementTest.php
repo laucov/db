@@ -62,12 +62,6 @@ class SelectStatementTest extends TestCase
      * @uses Laucov\Db\Query\RowOrder::__toString
      * @uses Laucov\Db\Query\Traits\ExpressionCompilerTrait::compileExpression
      * @uses Laucov\Db\Query\WhereClause::__toString
-     * 
-     * @todo Laucov\Db\Query\JoinClause
-     * @todo Laucov\Db\Query\OrderDirection
-     * @todo Laucov\Db\Query\ResultColumn
-     * @todo Laucov\Db\Query\RowOrder
-     * @todo Laucov\Db\Query\WhereClause
      */
     public function testCanBuildAQuery(): void
     {
