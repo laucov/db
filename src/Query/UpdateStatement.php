@@ -54,7 +54,7 @@ class UpdateStatement implements \Stringable
         protected string $tableName,
 
         /**
-         * Updated table alias.
+         * Table alias.
          */
         protected null|string $tableAlias = null,
     ) {}
