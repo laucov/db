@@ -28,24 +28,14 @@
 
 namespace Laucov\Db\Query;
 
-use Laucov\Db\Query\Traits\ExpressionCompilerTrait;
+use Laucov\Db\Query\Traits\JoinClauseStatementTrait;
 
 /**
  * Provides an interface to build a SQL SELECT query.
  */
 class SelectStatement implements \Stringable
 {
-    use ExpressionCompilerTrait;
-
-    /**
-     * Source table or subquery.
-     */
-    protected null|string $from = null;
-
-    /**
-     * Source alias.
-     */
-    protected null|string $fromAlias = null;
+    use JoinClauseStatementTrait;
 
     /**
      * Columns used to group rows.
@@ -53,13 +43,6 @@ class SelectStatement implements \Stringable
      * @var array<string>
      */
     protected array $groupColumns = [];
-
-    /**
-     * Registered JOIN clauses.
-     * 
-     * @var array<JoinClause>
-     */
-    protected array $joinClauses = [];
 
     /**
      * Maximum number of rows to retrieve.
@@ -88,24 +71,20 @@ class SelectStatement implements \Stringable
     protected array $resultColumns = [];
 
     /**
-     * Registered WHERE clause.
-     */
-    protected null|WhereClause $whereClause = null;
-
-    /**
      * Get the SELECT statement string representation.
      */
     public function __toString(): string
     {
         // Add columns.
-        // @todo Use astherisk if columns are not defined.
-        $columns = implode(', ', $this->resultColumns);
+        $columns = count($this->resultColumns) > 0
+            ? implode(', ', $this->resultColumns)
+            : '*';
         $statement = "SELECT {$columns}";
 
         // Add FROM clause.
-        if ($this->from !== null) {
-            $from = $this->compileExpression($this->from, $this->fromAlias);
-            $statement .= "\nFROM {$from}";
+        $from = $this->compileFromClause();
+        if ($from !== null) {
+            $statement .= "\n{$from}";
         }
 
         // Add JOIN and WHERE clauses.
@@ -133,18 +112,6 @@ class SelectStatement implements \Stringable
         }
 
         return $statement;
-    }
-
-    /**
-     * Start a JOIN clause.
-     */
-    public function addJoinClause(callable $callback): static
-    {
-        $clause = new JoinClause();
-        $this->joinClauses[] = $clause;
-        call_user_func($callback, $clause);
-
-        return $this;
     }
 
     /**
@@ -184,19 +151,6 @@ class SelectStatement implements \Stringable
     }
 
     /**
-     * Set the source table or subquery of this statement.
-     */
-    public function setFromClause(
-        string $table_or_subquery,
-        null|string $alias = null,
-    ): static {
-        $this->from = $table_or_subquery;
-        $this->fromAlias = $alias;
-
-        return $this;
-    }
-
-    /**
      * Set the maximum number of records to retrieve.
      * 
      * @var positive-int $limit
@@ -213,17 +167,6 @@ class SelectStatement implements \Stringable
     public function setOffset(int $offset): static
     {
         $this->offset = $offset;
-        return $this;
-    }
-
-    /**
-     * Set the WHERE clause.
-     */
-    public function setWhereClause(callable $callback): static
-    {
-        $this->whereClause = new WhereClause();
-        call_user_func($callback, $this->whereClause);
-
         return $this;
     }
 }

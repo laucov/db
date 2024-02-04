@@ -28,28 +28,31 @@
 
 namespace Laucov\Db\Query\Traits;
 
+use Laucov\Db\Query\JoinClause;
+
 /**
  * Handles strings with column names or expressions and its aliases.
  */
-trait ExpressionCompilerTrait
+trait JoinClauseStatementTrait
 {
-    /**
-     * Column or table name pattern.
-     */
-    protected const NAME_PATT = '/^([A-Za-z][\w\_]*\.)?[A-Za-z][\w\_]*$/';
+    use FromClauseStatementTrait;
 
     /**
-     * Compile
+     * Registered JOIN clauses.
+     * 
+     * @var array<JoinClause>
      */
-    public function compileExpression(
-        string $expression,
-        null|string $alias,
-    ): string {
-        // Add alias.
-        if ($alias !== null) {
-            $expression .= " AS {$alias}";
-        }
+    protected array $joinClauses = [];
 
-        return $expression;
+    /**
+     * Start a JOIN clause.
+     */
+    public function addJoinClause(callable $callback): static
+    {
+        $clause = new JoinClause();
+        $this->joinClauses[] = $clause;
+        call_user_func($callback, $clause);
+
+        return $this;
     }
 }

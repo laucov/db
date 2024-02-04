@@ -41,7 +41,6 @@ class ResultColumnTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::__toString
-     * @covers ::compileExpression
      */
     public function testCanCreateAndStringify(): void
     {

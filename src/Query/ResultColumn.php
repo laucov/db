@@ -28,15 +28,11 @@
 
 namespace Laucov\Db\Query;
 
-use Laucov\Db\Query\Traits\ExpressionCompilerTrait;
-
 /**
  * Represents a SQL result column.
  */
 class ResultColumn implements \Stringable
 {
-    use ExpressionCompilerTrait;
-
     /**
      * Field name RegEx pattern.
      */
@@ -62,6 +58,8 @@ class ResultColumn implements \Stringable
      */
     public function __toString(): string
     {
-        return $this->compileExpression($this->definition, $this->alias);
+        return $this->alias !== null
+            ? "{$this->definition} AS {$this->alias}"
+            : $this->definition;
     }
 }

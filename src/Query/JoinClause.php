@@ -28,15 +28,11 @@
 
 namespace Laucov\Db\Query;
 
-use Laucov\Db\Query\Traits\ExpressionCompilerTrait;
-
 /**
  * Provides an interface to build a SQL JOIN clause.
  */
 class JoinClause extends AbstractConditionalClause implements \Stringable
 {
-    use ExpressionCompilerTrait;
-
     /**
      * Alias.
      */
@@ -58,10 +54,9 @@ class JoinClause extends AbstractConditionalClause implements \Stringable
     public function __toString(): string
     {
         // Prepare expressions.
-        $target = $this->compileExpression(
-            $this->tableOrSubquery,
-            $this->alias,
-        );
+        $target = $this->alias !== null
+            ? "{$this->tableOrSubquery} AS {$this->alias}"
+            : "{$this->tableOrSubquery}";
         $constraints = implode("\n", $this->constraints);
 
         // Build clause.

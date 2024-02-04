@@ -41,7 +41,6 @@ class JoinClauseTest extends TestCase
     /**
      * @covers ::__toString
      * @covers ::addConstraint
-     * @covers ::compileExpression
      * @covers ::setLogicalOperator
      * @covers ::setOn
      * @uses Laucov\Db\Query\Constraint::__construct
@@ -58,5 +57,15 @@ class JoinClauseTest extends TestCase
             LEFT JOIN customers
             ON customers.id = cars.customer_id
             SQL, (string) $clause_a);
+        
+        // Test joining with alias.
+        $clause_b = new JoinClause();
+        $clause_b
+            ->setOn('INNER', 'customers', 'clients')
+            ->addConstraint('clients.id', '=', 'cars.customer_id');
+        $this->assertSame(<<<SQL
+            INNER JOIN customers AS clients
+            ON clients.id = cars.customer_id
+            SQL, (string) $clause_b);
     }
 }

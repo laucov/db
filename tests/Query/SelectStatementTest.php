@@ -44,6 +44,7 @@ class SelectStatementTest extends TestCase
      * @covers ::__toString
      * @covers ::addJoinClause
      * @covers ::addResultColumn
+     * @covers ::compileFromClause
      * @covers ::groupRows
      * @covers ::orderRows
      * @covers ::setFromClause
@@ -60,13 +61,32 @@ class SelectStatementTest extends TestCase
      * @uses Laucov\Db\Query\ResultColumn::__toString
      * @uses Laucov\Db\Query\RowOrder::__construct
      * @uses Laucov\Db\Query\RowOrder::__toString
-     * @uses Laucov\Db\Query\Traits\ExpressionCompilerTrait::compileExpression
      * @uses Laucov\Db\Query\WhereClause::__toString
      */
     public function testCanBuildAQuery(): void
     {
-        // Create expected query.
-        $expected = <<<SQL
+        // Test a simple query.
+        $expected_a = <<<SQL
+            SELECT *
+            FROM cars
+            FULL JOIN customers
+            ON customers.id = cars.customer_id
+            SQL;
+        
+        // Build.
+        $actual_a =  (string) (new SelectStatement())
+            ->setFromClause('cars')
+            ->addJoinClause(function (JoinClause $clause): void {
+                $clause
+                    ->setOn('FULL', 'customers')
+                    ->addConstraint('customers.id', '=', 'cars.customer_id');
+            });
+        
+        // Compare.
+        $this->assertSame($expected_a, $actual_a);
+        
+        // Test a complex query.
+        $expected_b = <<<SQL
             SELECT model, cars.brand_name AS brand, drivers.name AS driver
             FROM cars
             LEFT JOIN customers AS drivers
@@ -80,8 +100,8 @@ class SelectStatementTest extends TestCase
             OFFSET 200
             SQL;
         
-        // Build actual query.
-        $actual = (string) (new SelectStatement())
+        // Build.
+        $actual_b = (string) (new SelectStatement())
             ->addResultColumn('model')
             ->addResultColumn('cars.brand_name', 'brand')
             ->addResultColumn('drivers.name', 'driver')
@@ -104,7 +124,7 @@ class SelectStatementTest extends TestCase
             ->setLimit(100)
             ->setOffset(200);
         
-        // Compare queries.
-        $this->assertSame($expected, $actual);
+        // Compare.
+        $this->assertSame($expected_b, $actual_b);
     }
 }

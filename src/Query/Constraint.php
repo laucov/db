@@ -28,8 +28,6 @@
 
 namespace Laucov\Db\Query;
 
-use Laucov\Db\Query\Traits\ExpressionCompilerTrait;
-
 /**
  * Represents a SQL constraint.
  */
