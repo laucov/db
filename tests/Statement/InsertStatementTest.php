@@ -58,7 +58,7 @@ class InsertStatementTest extends TestCase
      * @uses Laucov\Db\Statement\SelectStatement::__toString
      * @uses Laucov\Db\Statement\SelectStatement::addResultColumn
      */
-    public function testCanCreateAndStringify(): void
+    public function testCanBuildAQuery(): void
     {
         // Test simple insertion.
         $expected_a = <<<SQL

@@ -50,7 +50,7 @@ class DeleteStatementTest extends TestCase
      * @uses Laucov\Db\Statement\Clause\Traits\FromClauseStatementTrait::setWhereClause
      * @uses Laucov\Db\Statement\Clause\WhereClause::__toString
      */
-    public function testCanCreateAndStringify(): void
+    public function testCanBuildAQuery(): void
     {
         // Test a simple query.
         $expected_a = <<<SQL

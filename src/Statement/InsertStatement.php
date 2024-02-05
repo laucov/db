@@ -129,7 +129,7 @@ class InsertStatement implements \Stringable
     }
 
     /**
-     * Set a SELECT statement to
+     * Set a SELECT statement to define the insertion content.
      * 
      * This will remove any previously set row values.
      */
