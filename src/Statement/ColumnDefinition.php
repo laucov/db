@@ -40,7 +40,7 @@ class ColumnDefinition implements \Stringable
         /**
          * Column name.
          */
-        protected string $name,
+        public string $name,
 
         /**
          * Type name.
