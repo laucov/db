@@ -35,7 +35,7 @@ use Laucov\Db\Statement\CreateTableStatement;
 use Laucov\Db\Statement\DropTableStatement;
 
 /**
- * Manipules database structures.
+ * Manipulates database structures.
  */
 class Schema
 {
