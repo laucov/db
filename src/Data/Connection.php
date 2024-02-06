@@ -28,11 +28,24 @@
 
 namespace Laucov\Db\Data;
 
+use Laucov\Db\Data\Driver\AbstractDriver;
+use Laucov\Db\Data\Driver\DriverFactory;
+
 /**
  * Provides an additional interface to PHP Data Objects (PDO).
  */
 class Connection
 {
+    /**
+     * Driver in use.
+     */
+    protected AbstractDriver $driver;
+
+    /**
+     * Driver name in use.
+     */
+    protected string $driverName;
+
     /**
      * PHP Data Object.
      */
@@ -47,6 +60,7 @@ class Connection
      * Create the connection instance.
      */
     public function __construct(
+        DriverFactory $driver_factory,
         string $dsn,
         null|string $username = null,
         null|string $password = null,
@@ -54,6 +68,10 @@ class Connection
     ) {
         // Create the PDO.
         $this->pdo = new \PDO($dsn, $username, $password, $options);
+
+        // Set the driver.
+        $this->driverName = $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        $this->driver = $driver_factory->createDriver($this->driverName);
     }
 
     /**
@@ -111,6 +129,22 @@ class Connection
     {
         $statement = $this->getStatement();
         return $statement->fetch(\PDO::FETCH_NUM);
+    }
+
+    /**
+     * Get the database driver information object.
+     */
+    public function getDriver(): AbstractDriver
+    {
+        return $this->driver;
+    }
+
+    /**
+     * Get the database driver name.
+     */
+    public function getDriverName(): string
+    {
+        return $this->driverName;
     }
 
     /**

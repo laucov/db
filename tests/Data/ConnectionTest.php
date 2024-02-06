@@ -31,6 +31,8 @@ declare(strict_types=1);
 namespace Tests\Data;
 
 use Laucov\Db\Data\Connection;
+use Laucov\Db\Data\Driver\AbstractDriver;
+use Laucov\Db\Data\Driver\DriverFactory;
 use PHPUnit\Framework\TestCase;
  
 /**
@@ -39,6 +41,24 @@ use PHPUnit\Framework\TestCase;
 class ConnectionTest extends TestCase
 {
     protected Connection $conn;
+
+    /**
+     * @covers ::getDriver
+     * @covers ::getDriverName
+     * @uses Laucov\Db\Data\Connection::__construct
+     * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
+     */
+    public function testCanGetDriverData(): void
+    {
+        // Test getting the driver name.
+        $this->assertSame('sqlite', $this->conn->getDriverName());
+
+        // Test getting the driver object.
+        $this->assertInstanceOf(
+            AbstractDriver::class,
+            $this->conn->getDriver(),
+        );
+    }
 
     /**
      * @covers ::__construct
@@ -52,6 +72,7 @@ class ConnectionTest extends TestCase
      * @covers ::listClass
      * @covers ::listNum
      * @covers ::query
+     * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
      */
     public function testCanQueryAndFetch(): void
     {
@@ -88,9 +109,9 @@ class ConnectionTest extends TestCase
         $this->assertSame('John', $select()->fetchNum()[1]);
         $this->assertSame(
             'John',
-            $select()->fetchClass(ConnectionEntityTest::class)->first_name,
+            $select()->fetchClass(ExampleEntity::class)->first_name,
         );
-        $object = new ConnectionEntityTest();
+        $object = new ExampleEntity();
         $this->assertSame('John', $select()->fetchInto($object)->first_name);
 
         // Prepare expected values.
@@ -111,10 +132,10 @@ class ConnectionTest extends TestCase
         }
 
         // Test listing as objects - without arguments.
-        $list_b = $select()->listClass(ConnectionEntityTest::class);
+        $list_b = $select()->listClass(ExampleEntity::class);
         $this->assertIsArray($list_b);
         foreach ($list_b as $i => $record) {
-            $this->assertInstanceOf(ConnectionEntityTest::class, $record);
+            $this->assertInstanceOf(ExampleEntity::class, $record);
             $this->assertFalse($record->hasArgs);
             $keys = ['id', 'first_name', 'last_name'];
             foreach($keys as $key) {
@@ -123,10 +144,10 @@ class ConnectionTest extends TestCase
         }
 
         // Test listing as objects - with arguments.
-        $list_c = $select()->listClass(ConnectionEntityTest::class, [true]);
+        $list_c = $select()->listClass(ExampleEntity::class, [true]);
         $this->assertIsArray($list_c);
         foreach ($list_c as $i => $record) {
-            $this->assertInstanceOf(ConnectionEntityTest::class, $record);
+            $this->assertInstanceOf(ExampleEntity::class, $record);
             $this->assertTrue($record->hasArgs);
             $keys = ['id', 'first_name', 'last_name'];
             foreach($keys as $key) {
@@ -146,34 +167,32 @@ class ConnectionTest extends TestCase
         }
     }
 
-    protected function setUp(): void
-    {
-        // Create the connection object.
-        $this->conn = new Connection('sqlite::memory:');
-    }
-
     /**
      * @covers ::getStatement
      * @uses Laucov\Db\Data\Connection::__construct
+     * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
      */
     public function testStatementMustExistToGetIt(): void
     {
         $this->expectException(\RuntimeException::class);
         $this->conn->getStatement();
     }
+
+    protected function setUp(): void
+    {
+        // Create the connection object.
+        $this->conn = new Connection(new DriverFactory(), 'sqlite::memory:');
+    }
 }
 
 /**
  * Test class.
  */
-class ConnectionEntityTest
+class ExampleEntity
 {
     public string $first_name;
-
     public int $id;
-
     public string $last_name;
-
     public function __construct(public bool $hasArgs = false)
     {}
 }
