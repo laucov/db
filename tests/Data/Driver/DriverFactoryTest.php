@@ -47,6 +47,12 @@ class DriverFactoryTest extends TestCase
      */
     public function testCanGetAndSetDrivers(): void
     {
+        // Get native driver.
+        $this->assertInstanceOf(
+            AbstractDriver::class,
+            $this->factory->createDriver('sqlite'),
+        );
+
         // Register and get a new driver.
         $driver = $this->factory
             ->registerDriver('example', ExampleDriver::class)

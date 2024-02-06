@@ -38,7 +38,9 @@ class DriverFactory
      * 
      * @var array<string, class-string<AbstractDriver>>
      */
-    protected array $drivers = [];
+    protected array $drivers = [
+        'sqlite' => SqliteDriver::class,
+    ];
 
     /**
      * Create a new driver instance from a driver name.
