@@ -57,12 +57,17 @@ class SqliteDriver extends AbstractDriver
     /**
      * Statements used to get tables names from the database.
      * 
+     * Tables starting with "sqlite_" are ignored. See:
+     * 
+     * https://www.sqlite.org/lang_createtable.html#the_create_table_command
+     * 
      * @var array<string>
      */
     public array $tableGetterStatements = [
         <<<SQL
             SELECT "name" FROM sqlite_schema
-            WHERE type='table'
+            WHERE "type" = 'table'
+            AND "name" NOT LIKE 'sqlite_%'
             ORDER BY "name"
             SQL,
     ];
