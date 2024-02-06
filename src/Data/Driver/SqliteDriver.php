@@ -40,7 +40,8 @@ class SqliteDriver extends AbstractDriver
      */
     public array $columnGetterStatements = [
         <<<SQL
-            SELECT "name" FROM pragma_table_info('{table_name}')
+            SELECT "name"
+            FROM pragma_table_info('{table_name}')
             SQL,
     ];
 
