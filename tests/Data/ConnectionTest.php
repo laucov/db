@@ -67,6 +67,7 @@ class ConnectionTest extends TestCase
      * @covers ::fetchClass
      * @covers ::fetchInto
      * @covers ::fetchNum
+     * @covers ::getLastId
      * @covers ::getStatement
      * @covers ::listAssoc
      * @covers ::listClass
@@ -87,7 +88,7 @@ class ConnectionTest extends TestCase
         $result = $this->conn->query($query_a);
         $this->assertSame($this->conn, $result);
 
-        // Test placeholders and row count.
+        // Test placeholders, last ID and row count.
         $query_b = <<<SQL
             INSERT INTO testing (first_name, last_name)
             VALUES ('John', 'Doe'),
@@ -100,6 +101,7 @@ class ConnectionTest extends TestCase
                 'last_name' => 'Barbaz',
             ])
             ->countAffectedRows();
+        $this->assertSame('3', $this->conn->getLastId());
         $this->assertSame(3, $result_b);
 
         // Test fetching modes - single row.
@@ -165,6 +167,17 @@ class ConnectionTest extends TestCase
                 $this->assertSame($expected[$i][$key], $record[$j]);
             }
         }
+    }
+
+    /**
+     * @covers ::getLastId
+     * @uses Laucov\Db\Data\Connection::__construct
+     * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
+     */
+    public function testLastIdMustExistToGetIt(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->conn->getLastId();
     }
 
     /**

@@ -148,6 +148,20 @@ class Connection
     }
 
     /**
+     * Get the ID of the last inserted row.
+     */
+    public function getLastId(): string
+    {
+        $id = $this->pdo->lastInsertId();
+        if (!is_string($id) || $id === '0') {
+            $message = 'Could not get the last inserted row ID.';
+            throw new \RuntimeException($message);
+        }
+
+        return $id;
+    }
+
+    /**
      * Get the current statement object.
      */
     public function getStatement(): \PDOStatement
