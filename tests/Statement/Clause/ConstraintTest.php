@@ -145,5 +145,16 @@ class ConstraintTest extends TestCase
                 1,
             ));
         }
+
+        // Test groups.
+        $expected = "(\n(\n(\n(\nname LIKE 'John Doe'\n)\n)";
+        $this->assertSame($expected, (string) new Constraint(
+            null,
+            'name',
+            ComparisonOperator::LIKE,
+            "'John Doe'",
+            4,
+            2,
+        ));
     }
 }

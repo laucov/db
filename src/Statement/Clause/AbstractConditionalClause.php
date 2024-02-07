@@ -34,9 +34,14 @@ namespace Laucov\Db\Statement\Clause;
 class AbstractConditionalClause
 {
     /**
+     * Number of groups to begin in the next constraint.
+     */
+    protected int $beginGroups = 0;
+
+    /**
      * Registered constraints.
      * 
-     * @var array<Constraint>
+     * @var array<string|Constraint>
      */
     protected array $constraints = [];
 
@@ -69,8 +74,32 @@ class AbstractConditionalClause
             $expression_a,
             $comparison_operator,
             $expression_b,
+            $this->beginGroups,
+            false,
         );
 
+        // Reset grouping properties.
+        $this->beginGroups = 0;
+
+        return $this;
+    }
+
+    /**
+     * Start a constraint group.
+     */
+    public function beginGroup(): static
+    {
+        $this->beginGroups++;
+        return $this;
+    }
+
+    /**
+     * End the current constraint group.
+     */
+    public function endGroup(): static
+    {
+        $index = array_key_last($this->constraints);
+        $this->constraints[$index]->endGroups++;
         return $this;
     }
 

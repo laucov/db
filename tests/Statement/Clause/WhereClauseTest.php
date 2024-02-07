@@ -41,6 +41,8 @@ class WhereClauseTest extends TestCase
     /**
      * @covers ::__toString
      * @covers ::addConstraint
+     * @covers ::beginGroup
+     * @covers ::endGroup
      * @covers ::setLogicalOperator
      * @uses Laucov\Db\Statement\Clause\Constraint::__construct
      * @uses Laucov\Db\Statement\Clause\Constraint::__toString
@@ -70,5 +72,37 @@ class WhereClauseTest extends TestCase
         $clause_b = new WhereClause();
         $clause_b->addConstraint('1');
         $this->assertSame('WHERE 1', (string) $clause_b);
+
+        // Test with groups.
+        $expected_c = <<<SQL
+            WHERE (
+            (
+            code LIKE 'foo%'
+            OR code LIKE 'bar%'
+            )
+            AND code LIKE '%baz'
+            )
+            AND (
+            price > 7.00
+            OR discount = 0.00
+            )
+            SQL;
+        $actual_c = (string) (new WhereClause())
+            ->beginGroup()
+                ->beginGroup()
+                    ->addConstraint('code', 'LIKE', "'foo%'")
+                    ->setLogicalOperator('OR')
+                    ->addConstraint('code', 'LIKE', "'bar%'")
+                ->endGroup()
+                ->setLogicalOperator('AND')
+                ->addConstraint('code', 'LIKE', "'%baz'")
+            ->endGroup()
+            ->setLogicalOperator('AND')
+            ->beginGroup()
+                ->addConstraint('price', '>', '7.00')
+                ->setLogicalOperator('OR')
+                ->addConstraint('discount', '=', '0.00')
+            ->endGroup();
+        $this->assertSame($expected_c, $actual_c);
     }
 }

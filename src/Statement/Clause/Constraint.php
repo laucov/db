@@ -40,22 +40,32 @@ class Constraint implements \Stringable
         /**
          * Logical operator.
          */
-        public readonly null|LogicalOperator $logicalOperator,
+        public null|LogicalOperator $logicalOperator,
 
         /**
          * First or only expression.
          */
-        public readonly string $expressionA,
+        public string $expressionA,
 
         /**
          * Logical operator.
          */
-        public readonly null|ComparisonOperator $comparisonOperator = null,
+        public null|ComparisonOperator $comparisonOperator = null,
 
         /**
          * Second expression to compare with the first one.
          */
-        public readonly null|int|string|array $expressionB = null,
+        public null|int|string|array $expressionB = null,
+
+        /**
+         * Number of constraint groups to open.
+         */
+        public int $beginGroups = 0,
+
+        /**
+         * Number of constraint groups to close.
+         */
+        public int $endGroups = 0,
     ) {}
 
     /**
@@ -67,6 +77,9 @@ class Constraint implements \Stringable
         $constraint = $this->logicalOperator
             ? ($this->logicalOperator->value . ' ')
             : '';
+        if ($this->beginGroups > 0) {
+            $constraint .= str_repeat("(\n", $this->beginGroups);
+        }
         $constraint .= $this->expressionA;
 
         if (
@@ -96,6 +109,11 @@ class Constraint implements \Stringable
                 $expression = (string) $this->expressionB;
             }
             $constraint .= " {$this->comparisonOperator->value} {$expression}";
+        }
+
+        // Close group.
+        if ($this->endGroups > 0) {
+            $constraint .= str_repeat("\n)", $this->endGroups);
         }
 
         return $constraint;
