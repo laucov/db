@@ -36,6 +36,16 @@ use Laucov\Db\Statement\Clause\JoinClause;
 abstract class AbstractJoinableStatement extends AbstractConditionalStatement
 {
     /**
+     * Source table or subquery.
+     */
+    protected null|string $from = null;
+
+    /**
+     * Source alias.
+     */
+    protected null|string $fromAlias = null;
+    
+    /**
      * Registered JOIN clauses.
      * 
      * @var array<JoinClause>
@@ -52,5 +62,32 @@ abstract class AbstractJoinableStatement extends AbstractConditionalStatement
         call_user_func($callback, $clause);
 
         return $this;
+    }
+
+    /**
+     * Set the source table or subquery of this statement.
+     */
+    public function setFromClause(
+        string $table_or_subquery,
+        null|string $alias = null,
+    ): static {
+        $this->from = $table_or_subquery;
+        $this->fromAlias = $alias;
+
+        return $this;
+    }
+
+    /**
+     * Get the FROM clause string representation.
+     */
+    protected function compileFromClause(): null|string
+    {
+        if ($this->from === null) {
+            return null;
+        }
+
+        return $this->fromAlias !== null
+            ? "FROM {$this->from} AS {$this->fromAlias}"
+            : "FROM {$this->from}";
     }
 }

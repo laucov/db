@@ -43,16 +43,11 @@ class UpdateStatementTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::__toString
-     * @covers ::compileFromClause
-     * @covers ::setFromClause
      * @covers ::setValue
      * @covers ::setWhereClause
-     * @uses Laucov\Db\Statement\AbstractJoinableStatement::addJoinClause
      * @uses Laucov\Db\Statement\Clause\AbstractConditionalClause::addConstraint
      * @uses Laucov\Db\Statement\Clause\Constraint::__construct
      * @uses Laucov\Db\Statement\Clause\Constraint::__toString
-     * @uses Laucov\Db\Statement\Clause\JoinClause::__toString
-     * @uses Laucov\Db\Statement\Clause\JoinClause::setOn
      * @uses Laucov\Db\Statement\Clause\WhereClause::__toString
      */
     public function testCanBuildAQuery(): void
@@ -70,28 +65,19 @@ class UpdateStatementTest extends TestCase
         // Compare.
         $this->assertSame($expected_a, $actual_a);
 
-        // Test a complex query.
+        // Test a query with constraints.
         $expected_b = <<<SQL
             UPDATE orders
-            SET employee_id = NULL, canceled_at = '2024-02-04 13:19'
-            FROM orders AS o
-            INNER JOIN employees
-            ON employees.id = o.employee_id
-            WHERE employees.is_active != 1
+            SET total_amount = NULL, canceled_at = '2024-02-04 13:19'
+            WHERE paid_at IS NULL
             SQL;
         
         // Build.
         $actual_b = (string) (new UpdateStatement('orders'))
-            ->setValue('employee_id', 'NULL')
+            ->setValue('total_amount', 'NULL')
             ->setValue('canceled_at', "'2024-02-04 13:19'")
-            ->setFromClause('orders', 'o')
-            ->addJoinClause(function (JoinClause $clause): void {
-                $clause
-                    ->setOn('INNER', 'employees')
-                    ->addConstraint('employees.id', '=', 'o.employee_id');
-            })
             ->setWhereClause(function (WhereClause $clause): void {
-                $clause->addConstraint('employees.is_active', '!=', 1);
+                $clause->addConstraint('paid_at', 'IS NULL');
             });
         
         // Compare.

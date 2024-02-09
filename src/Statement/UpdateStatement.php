@@ -31,7 +31,7 @@ namespace Laucov\Db\Statement;
 /**
  * Provides an interface to build a SQL SELECT query.
  */
-class UpdateStatement extends AbstractJoinableStatement
+class UpdateStatement extends AbstractConditionalStatement
 {
     /**
      * Values to update.
@@ -75,16 +75,7 @@ class UpdateStatement extends AbstractJoinableStatement
             $statement .= "\nSET " . implode(', ', $values);
         }
 
-        // Add FROM clause.
-        $from = $this->compileFromClause();
-        if ($from !== null) {
-            $statement .= "\n{$from}";
-        }
-
-        // Add other clauses.
-        if (count($this->joinClauses) > 0) {
-            $statement .= "\n" . implode("\n", $this->joinClauses);
-        }
+        // Add WHERE clause.
         if ($this->whereClause !== null) {
             $statement .= "\n{$this->whereClause}";
         }

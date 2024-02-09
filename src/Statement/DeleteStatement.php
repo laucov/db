@@ -34,13 +34,24 @@ namespace Laucov\Db\Statement;
 class DeleteStatement extends AbstractConditionalStatement
 {
     /**
+     * Source table or subquery.
+     */
+    protected null|string $from = null;
+
+    /**
+     * Source alias.
+     */
+    protected null|string $fromAlias = null;
+
+    /**
      * Create the DELETE statement instance.
      */
     public function __construct(
         string $table_name,
         null|string $table_alias = null,
     ) {
-        $this->setFromClause($table_name, $table_alias);
+        $this->from = $table_name;
+        $this->fromAlias = $table_alias;
     }
 
     /**
@@ -49,7 +60,10 @@ class DeleteStatement extends AbstractConditionalStatement
     public function __toString(): string
     {
         // Initialize statement.
-        $statement = "DELETE " . $this->compileFromClause();
+        $statement = "DELETE ";
+        $statement .= $this->fromAlias !== null
+            ? "FROM {$this->from} AS {$this->fromAlias}"
+            : "FROM {$this->from}";
 
         // Add WHERE clause.
         if ($this->whereClause !== null) {
