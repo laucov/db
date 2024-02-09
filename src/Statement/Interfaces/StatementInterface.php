@@ -26,36 +26,11 @@
  * @copyright © 2024 Laucov Serviços de Tecnologia da Informação Ltda.
  */
 
-namespace Laucov\Db\Statement;
+namespace Laucov\Db\Statement\Interfaces;
 
 /**
- * Provides an interface to build a SQL DELETE query.
+ * Interface used by all statement classes.
  */
-class DeleteStatement extends AbstractConditionalStatement
+interface StatementInterface extends \Stringable
 {
-    /**
-     * Create the DELETE statement instance.
-     */
-    public function __construct(
-        string $table_name,
-        null|string $table_alias = null,
-    ) {
-        $this->setFromClause($table_name, $table_alias);
-    }
-
-    /**
-     * Get the DELETE statement string representation.
-     */
-    public function __toString(): string
-    {
-        // Initialize statement.
-        $statement = "DELETE " . $this->compileFromClause();
-
-        // Add WHERE clause.
-        if ($this->whereClause !== null) {
-            $statement .= "\n{$this->whereClause}";
-        }
-        
-        return $statement;
-    }
 }

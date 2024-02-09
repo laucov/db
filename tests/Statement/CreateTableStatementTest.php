@@ -46,10 +46,10 @@ class CreateTableStatementTest extends TestCase
      * @covers ::addColumns
      * @covers ::setPrimaryKey
      * @covers ::setSelectStatement
+     * @uses Laucov\Db\Statement\AbstractConditionalStatement::compileFromClause
+     * @uses Laucov\Db\Statement\AbstractConditionalStatement::setFromClause
      * @uses Laucov\Db\Statement\ColumnDefinition::__construct
      * @uses Laucov\Db\Statement\ColumnDefinition::__toString
-     * @uses Laucov\Db\Statement\Clause\Traits\FromClauseStatementTrait::compileFromClause
-     * @uses Laucov\Db\Statement\Clause\Traits\FromClauseStatementTrait::setFromClause
      * @uses Laucov\Db\Statement\SelectStatement::__toString
      */
     public function testCanBuildAQuery(): void

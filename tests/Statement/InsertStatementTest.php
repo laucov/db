@@ -46,12 +46,12 @@ class InsertStatementTest extends TestCase
      * @covers ::addRowValues
      * @covers ::setColumns
      * @covers ::setSelectStatement
+     * @uses Laucov\Db\Statement\AbstractJoinableStatement::compileFromClause
+     * @uses Laucov\Db\Statement\AbstractJoinableStatement::setFromClause
+     * @uses Laucov\Db\Statement\AbstractJoinableStatement::setWhereClause
      * @uses Laucov\Db\Statement\Clause\AbstractConditionalClause::addConstraint
      * @uses Laucov\Db\Statement\Clause\Constraint::__construct
      * @uses Laucov\Db\Statement\Clause\Constraint::__toString
-     * @uses Laucov\Db\Statement\Clause\Traits\JoinClauseStatementTrait::compileFromClause
-     * @uses Laucov\Db\Statement\Clause\Traits\JoinClauseStatementTrait::setFromClause
-     * @uses Laucov\Db\Statement\Clause\Traits\JoinClauseStatementTrait::setWhereClause
      * @uses Laucov\Db\Statement\Clause\WhereClause::__toString
      * @uses Laucov\Db\Statement\ResultColumn::__construct
      * @uses Laucov\Db\Statement\ResultColumn::__toString

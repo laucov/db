@@ -26,17 +26,15 @@
  * @copyright © 2024 Laucov Serviços de Tecnologia da Informação Ltda.
  */
 
-namespace Laucov\Db\Statement\Clause\Traits;
+namespace Laucov\Db\Statement;
 
 use Laucov\Db\Statement\Clause\JoinClause;
 
 /**
  * Provides methods for manipulating the statement's JOIN clauses.
  */
-trait JoinClauseStatementTrait
+abstract class AbstractJoinableStatement extends AbstractConditionalStatement
 {
-    use FromClauseStatementTrait;
-
     /**
      * Registered JOIN clauses.
      * 

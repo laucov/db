@@ -28,15 +28,11 @@
 
 namespace Laucov\Db\Statement;
 
-use Laucov\Db\Statement\Clause\Traits\JoinClauseStatementTrait;
-
 /**
  * Provides an interface to build a SQL SELECT query.
  */
-class UpdateStatement implements \Stringable
+class UpdateStatement extends AbstractJoinableStatement
 {
-    use JoinClauseStatementTrait;
-
     /**
      * Values to update.
      * 

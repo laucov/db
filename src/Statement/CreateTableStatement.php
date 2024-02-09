@@ -28,10 +28,12 @@
 
 namespace Laucov\Db\Statement;
 
+use Laucov\Db\Statement\Interfaces\StatementInterface;
+
 /**
  * Provides an interface to build a SQL CREATE TABLE query.
  */
-class CreateTableStatement implements \Stringable
+class CreateTableStatement implements StatementInterface
 {
     /**
      * Defined columns.

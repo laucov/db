@@ -28,10 +28,12 @@
 
 namespace Laucov\Db\Statement;
 
+use Laucov\Db\Statement\Interfaces\StatementInterface;
+
 /**
  * Provides an interface to build a SQL ALTER TABLE query.
  */
-class AlterTableStatement implements \Stringable
+class AlterTableStatement implements StatementInterface
 {
     /**
      * Selected ALTER TABLE change.

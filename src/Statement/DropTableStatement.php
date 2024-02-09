@@ -28,10 +28,12 @@
 
 namespace Laucov\Db\Statement;
 
+use Laucov\Db\Statement\Interfaces\StatementInterface;
+
 /**
  * Provides an interface to build a SQL DROP TABLE query.
  */
-class DropTableStatement implements \Stringable
+class DropTableStatement implements StatementInterface
 {
     /**
      * Create the ALTER TABLE statement instance.

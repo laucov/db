@@ -30,15 +30,12 @@ namespace Laucov\Db\Statement;
 
 use Laucov\Db\Statement\Clause\OrderDirection;
 use Laucov\Db\Statement\Clause\RowOrder;
-use Laucov\Db\Statement\Clause\Traits\JoinClauseStatementTrait;
 
 /**
  * Provides an interface to build a SQL SELECT query.
  */
-class SelectStatement implements \Stringable
+class SelectStatement extends AbstractJoinableStatement
 {
-    use JoinClauseStatementTrait;
-
     /**
      * Columns used to group rows.
      * 

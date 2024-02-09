@@ -26,14 +26,15 @@
  * @copyright © 2024 Laucov Serviços de Tecnologia da Informação Ltda.
  */
 
-namespace Laucov\Db\Statement\Clause\Traits;
+namespace Laucov\Db\Statement;
 
 use Laucov\Db\Statement\Clause\WhereClause;
+use Laucov\Db\Statement\Interfaces\StatementInterface;
 
 /**
- * Provides methods for manipulating the statement's FROM and WHERE clauses.
+ * Provides an interface to build a SQL query with FROM and WHERE clauses.
  */
-trait FromClauseStatementTrait
+abstract class AbstractConditionalStatement implements StatementInterface
 {
     /**
      * Source table or subquery.

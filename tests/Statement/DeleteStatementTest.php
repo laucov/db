@@ -43,11 +43,11 @@ class DeleteStatementTest extends TestCase
      * @covers ::__construct
      * @covers ::__toString
      * @covers ::compileFromClause
+     * @uses Laucov\Db\Statement\AbstractConditionalStatement::setFromClause
+     * @uses Laucov\Db\Statement\AbstractConditionalStatement::setWhereClause
      * @uses Laucov\Db\Statement\Clause\AbstractConditionalClause::addConstraint
      * @uses Laucov\Db\Statement\Clause\Constraint::__construct
      * @uses Laucov\Db\Statement\Clause\Constraint::__toString
-     * @uses Laucov\Db\Statement\Clause\Traits\FromClauseStatementTrait::setFromClause
-     * @uses Laucov\Db\Statement\Clause\Traits\FromClauseStatementTrait::setWhereClause
      * @uses Laucov\Db\Statement\Clause\WhereClause::__toString
      */
     public function testCanBuildAQuery(): void

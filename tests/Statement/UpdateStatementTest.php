@@ -47,12 +47,12 @@ class UpdateStatementTest extends TestCase
      * @covers ::setFromClause
      * @covers ::setValue
      * @covers ::setWhereClause
+     * @uses Laucov\Db\Statement\AbstractJoinableStatement::addJoinClause
      * @uses Laucov\Db\Statement\Clause\AbstractConditionalClause::addConstraint
      * @uses Laucov\Db\Statement\Clause\Constraint::__construct
      * @uses Laucov\Db\Statement\Clause\Constraint::__toString
      * @uses Laucov\Db\Statement\Clause\JoinClause::__toString
      * @uses Laucov\Db\Statement\Clause\JoinClause::setOn
-     * @uses Laucov\Db\Statement\Clause\Traits\JoinClauseStatementTrait::addJoinClause
      * @uses Laucov\Db\Statement\Clause\WhereClause::__toString
      */
     public function testCanBuildAQuery(): void

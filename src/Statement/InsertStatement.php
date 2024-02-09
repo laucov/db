@@ -28,10 +28,12 @@
 
 namespace Laucov\Db\Statement;
 
+use Laucov\Db\Statement\Interfaces\StatementInterface;
+
 /**
  * Provides an interface to build a SQL INSERT query.
  */
-class InsertStatement implements \Stringable
+class InsertStatement implements StatementInterface
 {
     /**
      * Columns to fill in this insertion.
