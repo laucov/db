@@ -75,14 +75,6 @@ class Connection
     }
 
     /**
-     * Count the number of rows affected by the last statement execution.
-     */
-    public function countAffectedRows(): int
-    {
-        return $this->getStatement()->rowCount();
-    }
-
-    /**
      * Fetch a row as an associative array.
      * 
      * @return array<string, mixed>

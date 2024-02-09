@@ -62,7 +62,6 @@ class ConnectionTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::countAffectedRows
      * @covers ::fetchAssoc
      * @covers ::fetchClass
      * @covers ::fetchInto
@@ -95,14 +94,11 @@ class ConnectionTest extends TestCase
                 ('Vera', 'Fooberg'),
                 (:first_name, :last_name)
             SQL;
-        $result_b = $this->conn
-            ->query($query_b, [
-                'first_name' => 'Mary',
-                'last_name' => 'Barbaz',
-            ])
-            ->countAffectedRows();
+        $this->conn->query($query_b, [
+            'first_name' => 'Mary',
+            'last_name' => 'Barbaz',
+        ]);
         $this->assertSame('3', $this->conn->getLastId());
-        $this->assertSame(3, $result_b);
 
         // Test fetching modes - single row.
         $stmt = 'SELECT id, first_name, last_name FROM testing';
