@@ -55,6 +55,7 @@ class SchemaTest extends AbstractArrayTest
      * @uses Laucov\Db\Data\Connection::getStatement
      * @uses Laucov\Db\Data\Connection::listNum
      * @uses Laucov\Db\Data\Connection::query
+     * @uses Laucov\Db\Data\Connection::quoteIdentifier
      * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
      * @uses Laucov\Db\Query\Schema::getColumns
      * @uses Laucov\Db\Query\Schema::getTables
@@ -191,7 +192,7 @@ class SchemaTest extends AbstractArrayTest
     public function testCanGetTableColumns(): void
     {
         // Create connection.
-        $conn = new Connection(new DriverFactory(), 'sqlite::memory:');
+        $conn = $this->getConnection();
 
         // Add table.
         $conn->query(<<<SQL
@@ -225,7 +226,7 @@ class SchemaTest extends AbstractArrayTest
     public function testCanGetTables(): void
     {
         // Create connection.
-        $conn = new Connection(new DriverFactory(), 'sqlite::memory:');
+        $conn = $this->getConnection();
 
         // Add tables.
         $conn
@@ -256,11 +257,90 @@ class SchemaTest extends AbstractArrayTest
         $schema = new Schema($conn);
         $expected = ['donations', 'users'];
         $actual = $schema->getTables();
-        $this->assertIsArray($actual);
-        $this->assertCount(2, $actual);
-        foreach ($actual as $k => $v) {
-            $this->assertArrayHasKey($k, $expected);
-            $this->assertSame($expected[$k], $v);
-        }
+        $this->assertArrayIsLike($expected, $actual);
+    }
+
+    /**
+     * @coversNothing
+     * @uses Laucov\Db\Data\Connection::quoteIdentifier
+     */
+    public function testQuotesIdentifiers(): void
+    {
+        // Set expected queries.
+        $queries = [
+            [$this->equalTo(<<<SQL
+                CREATE TABLE "fruits"
+                (
+                "name" VARCHAR(64),
+                "color" VARCHAR(32)
+                )
+                SQL)],
+            [$this->equalTo(<<<SQL
+                ALTER TABLE "fruits"
+                ADD COLUMN "is_citric" INT(1)
+                SQL)],
+            [$this->equalTo(<<<SQL
+                ALTER TABLE "fruits"
+                RENAME COLUMN "is_citric" TO "is_acidic"
+                SQL)],
+            [$this->equalTo(<<<SQL
+                ALTER TABLE "fruits"
+                DROP COLUMN "is_acidic"
+                SQL)],
+            [$this->matchesRegularExpression(
+                '/^ALTER TABLE "fruits"\nADD COLUMN "color_alter_[\da-f]+" VARCHAR\(16\)$/',
+            )],
+            [$this->matchesRegularExpression(
+                '/^UPDATE "fruits"\nSET "color_alter_[\da-f]+" = "color"$/',
+            )],
+            [$this->equalTo(<<<SQL
+                ALTER TABLE "fruits"
+                DROP COLUMN "color"
+                SQL)],
+            [$this->matchesRegularExpression(
+                '/^ALTER TABLE "fruits"\nRENAME COLUMN "color_alter_[\da-f]+" TO "color"$/',
+            )],
+            [$this->equalTo(<<<SQL
+                DROP TABLE "fruits"
+                SQL)],
+        ];
+
+        // Mock connection.
+        $conn_mock = $this->getMockBuilder(Connection::class)
+            ->setConstructorArgs([new DriverFactory(), 'sqlite::memory:'])
+            ->onlyMethods(['query'])
+            ->getMock();
+        $conn_mock
+            ->expects($this->exactly(count($queries)))
+            ->method('query')
+            ->withConsecutive(...$queries);
+        
+        // Create schema instance.
+        $schema = new Schema($conn_mock);
+
+        // Call query methods.
+        $schema
+            ->createTable(
+                'fruits',
+                new ColumnDefinition('name', 'VARCHAR', 64),
+                new ColumnDefinition('color', 'VARCHAR', 32),
+            )
+            ->createColumn('fruits', new ColumnDefinition('is_citric', 'INT', 1))
+            ->renameColumn('fruits', 'is_citric', 'is_acidic')
+            ->dropColumn('fruits', 'is_acidic')
+            ->alterColumn(
+                'fruits',
+                'color',
+                new ColumnDefinition('color', 'VARCHAR', 16),
+            )
+            ->dropTable('fruits');
+    }
+
+    /**
+     * Create a new connection instance.
+     */
+    protected function getConnection(): Connection
+    {
+        return new Connection(new DriverFactory(), 'sqlite::memory:');
     }
 }

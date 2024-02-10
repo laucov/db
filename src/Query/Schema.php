@@ -64,7 +64,7 @@ class Schema
         string $column_name,
         ColumnDef $column,
     ): static {
-        // Set a temporary name.
+        // Create a temporary name.
         $temp_name = uniqid("{$column_name}_alter_");
 
         // Save the original name and create the column.
@@ -73,8 +73,12 @@ class Schema
         $this->createColumn($table_name, $column);
 
         // Copy data into the new column.
+        $quoted_temp_name = $this->connection->quoteIdentifier($temp_name);
+        $quoted_table_name = $this->connection->quoteIdentifier($table_name);
+        $quoted_column_name = $this->connection->quoteIdentifier($column_name);
         $this->connection->query(<<<SQL
-            UPDATE {$table_name} SET {$temp_name} = {$column_name}
+            UPDATE {$quoted_table_name}
+            SET {$quoted_temp_name} = {$quoted_column_name}
             SQL);
         
         // Replace the old column.
@@ -89,6 +93,11 @@ class Schema
      */
     public function createColumn(string $table_name, ColumnDef $column): static
     {
+        // Quote identifiers.
+        $table_name = $this->connection->quoteIdentifier($table_name);
+        $column->name = $this->connection->quoteIdentifier($column->name);
+
+        // Add column.
         $stmt = new AlterTableStatement($table_name);
         $stmt->addColumn($column);
         $this->connection->query($stmt);
@@ -101,6 +110,13 @@ class Schema
      */
     public function createTable(string $name, ColumnDef ...$columns): static
     {
+        // Quote identifiers.
+        $name = $this->connection->quoteIdentifier($name);
+        foreach ($columns as $column) {
+            $column->name = $this->connection->quoteIdentifier($column->name);
+        }
+
+        // Create table.
         $stmt = new CreateTableStatement($name);
         $stmt->addColumns(...$columns);
         $this->connection->query($stmt);
@@ -124,6 +140,10 @@ class Schema
             }
         }
 
+        // Quote identifiers.
+        $table_name = $this->connection->quoteIdentifier($table_name);
+        $column_name = $this->connection->quoteIdentifier($column_name);
+
         // Drop column.
         $stmt = new AlterTableStatement($table_name);
         $stmt->dropColumn($column_name);
@@ -137,6 +157,7 @@ class Schema
      */
     public function dropTable(string $name, bool $if_exists = false): static
     {
+        $name = $this->connection->quoteIdentifier($name);
         $stmt = new DropTableStatement($name, $if_exists);
         $this->connection->query($stmt);
 
@@ -182,6 +203,12 @@ class Schema
         string $column_name,
         string $new_name,
     ): static {
+        // Quote identifiers.
+        $table_name = $this->connection->quoteIdentifier($table_name);
+        $column_name = $this->connection->quoteIdentifier($column_name);
+        $new_name = $this->connection->quoteIdentifier($new_name);
+
+        // Rename column.
         $stmt = new AlterTableStatement($table_name);
         $stmt->renameColumn($column_name, $new_name);
         $this->connection->query($stmt);

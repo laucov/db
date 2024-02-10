@@ -228,6 +228,6 @@ class Connection
         // Handle single identifier.
         return $this->driver->identifierStartDelimiter
             . $identifier
-            . $this->driver->identifierEndDelimiter;;
+            . $this->driver->identifierEndDelimiter;
     }
 }
