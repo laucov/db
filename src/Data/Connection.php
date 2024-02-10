@@ -218,12 +218,14 @@ class Connection
      */
     public function quoteIdentifier(string $identifier): string
     {
+        // Split composite identifier.
         if (str_contains($identifier, '.')) {
             $segments = explode('.', $identifier);
             $segments = array_map([$this, 'quoteIdentifier'], $segments);
             return implode('.', $segments);
         }
 
+        // Handle single identifier.
         return $this->driver->identifierStartDelimiter
             . $identifier
             . $this->driver->identifierEndDelimiter;;
