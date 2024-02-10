@@ -212,4 +212,20 @@ class Connection
 
         return $this;
     }
+
+    /**
+     * Quote an identifier according to driver-specific configuration.
+     */
+    public function quoteIdentifier(string $identifier): string
+    {
+        if (str_contains($identifier, '.')) {
+            $segments = explode('.', $identifier);
+            $segments = array_map([$this, 'quoteIdentifier'], $segments);
+            return implode('.', $segments);
+        }
+
+        return $this->driver->identifierStartDelimiter
+            . $identifier
+            . $this->driver->identifierEndDelimiter;;
+    }
 }

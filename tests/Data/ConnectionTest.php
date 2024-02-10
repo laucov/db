@@ -166,6 +166,30 @@ class ConnectionTest extends TestCase
     }
 
     /**
+     * @covers ::quoteIdentifier
+     * @uses Laucov\Db\Data\Connection::__construct
+     * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
+     */
+    public function testCanQuoteIdentifiers(): void
+    {
+        // Test with single identifier.
+        $this->assertSame(
+            '"my_column"',
+            $this->conn->quoteIdentifier('my_column'),
+        );
+
+        // Test with composite identifier.
+        $this->assertSame(
+            '"my_table"."my_column"',
+            $this->conn->quoteIdentifier('my_table.my_column'),
+        );
+        $this->assertSame(
+            '"my_db"."my_table"."my_column"',
+            $this->conn->quoteIdentifier('my_db.my_table.my_column'),
+        );
+    }
+
+    /**
      * @covers ::getLastId
      * @uses Laucov\Db\Data\Connection::__construct
      * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
