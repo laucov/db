@@ -111,8 +111,20 @@ class Schema
     /**
      * Drop a column from the given table.
      */
-    public function dropColumn(string $table_name, string $column_name): static
-    {
+    public function dropColumn(
+        string $table_name,
+        string $column_name,
+        bool $if_exists = false,
+    ): static {
+        // Check if the column exists before dropping.
+        if ($if_exists) {
+            $columns = $this->getColumns($table_name);
+            if (!in_array($column_name, $columns)) {
+                return $this;
+            }
+        }
+
+        // Drop column.
         $stmt = new AlterTableStatement($table_name);
         $stmt->dropColumn($column_name);
         $this->connection->query($stmt);

@@ -58,6 +58,7 @@ class SchemaTest extends AbstractArrayTest
      * @uses Laucov\Db\Data\Connection::listNum
      * @uses Laucov\Db\Data\Connection::query
      * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
+     * @uses Laucov\Db\Setup\Schema::getColumns
      * @uses Laucov\Db\Setup\Schema::getTables
      * @uses Laucov\Db\Statement\AlterTableStatement::__construct
      * @uses Laucov\Db\Statement\AlterTableStatement::__toString
@@ -155,9 +156,10 @@ class SchemaTest extends AbstractArrayTest
             ->listNum();
         $this->assertArrayIsLike($expected_b, $actual_b);
         
-        // Drop and rename column.
+        // Modify columns.
         $schema
             ->dropColumn('orders', 'discount')
+            ->dropColumn('orders', 'inexistent_column', true)
             ->renameColumn('orders', 'employee_id', 'person_id')
             ->alterColumn(
                 'orders',
