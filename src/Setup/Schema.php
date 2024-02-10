@@ -64,15 +64,8 @@ class Schema
         string $column_name,
         ColumnDef $column,
     ): static {
-        // Get table columns.
-        $columns = $this->getColumns($table_name);
-        
         // Set a temporary name.
-        $temp_suffix = '0';
-        while (in_array("{$column_name}_alter_{$temp_suffix}", $columns)) {
-            $temp_suffix = (string) (intval($temp_suffix) + 1);
-        }
-        $temp_name = "{$column_name}_alter_{$temp_suffix}";
+        $temp_name = uniqid("{$column_name}_alter_");
 
         // Save the original name and create the column.
         $final_name = $column->name;

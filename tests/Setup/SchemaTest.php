@@ -36,11 +36,12 @@ use Laucov\Db\Setup\Schema;
 use Laucov\Db\Statement\ColumnDefinition;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Tests\AbstractArrayTest;
  
 /**
  * @coversDefaultClass \Laucov\Db\Setup\Schema
  */
-class SchemaTest extends TestCase
+class SchemaTest extends AbstractArrayTest
 {
     /**
      * @covers ::__construct
@@ -49,13 +50,15 @@ class SchemaTest extends TestCase
      * @covers ::createTable
      * @covers ::dropColumn
      * @covers ::dropTable
-     * @covers ::getColumns
      * @covers ::renameColumn
      * @covers ::renameTable
      * @uses Laucov\Db\Data\Connection::__construct
      * @uses Laucov\Db\Data\Connection::getDriver
+     * @uses Laucov\Db\Data\Connection::getStatement
      * @uses Laucov\Db\Data\Connection::listNum
+     * @uses Laucov\Db\Data\Connection::query
      * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
+     * @uses Laucov\Db\Setup\Schema::getTables
      * @uses Laucov\Db\Statement\AlterTableStatement::__construct
      * @uses Laucov\Db\Statement\AlterTableStatement::__toString
      * @uses Laucov\Db\Statement\AlterTableStatement::addColumn
@@ -72,83 +75,12 @@ class SchemaTest extends TestCase
      */
     public function testCanBuildTables(): void
     {
-        // Create queries.
-        $query_a = <<<SQL
-            CREATE TABLE sales
-            (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            customer_id INT(11),
-            amount DECIMAL(16,2),
-            discount DECIMAL(16,2)
-            )
-            SQL;
-        $query_b = <<<SQL
-            DROP TABLE IF EXISTS inexistent_table
-            SQL;
-        $query_c = <<<SQL
-            ALTER TABLE sales
-            RENAME TO orders
-            SQL;
-        $query_d = <<<SQL
-            ALTER TABLE orders
-            ADD COLUMN employee_id INT(11)
-            SQL;
-        $query_e = <<<SQL
-            ALTER TABLE orders
-            DROP COLUMN discount
-            SQL;
-        $query_f = <<<SQL
-            ALTER TABLE orders
-            RENAME COLUMN amount TO total_amount
-            SQL;
-        $query_g = <<<SQL
-            SELECT "name"
-            FROM pragma_table_info('orders')
-            SQL;
-        $query_h = <<<SQL
-            ALTER TABLE orders
-            ADD COLUMN total_amount_alter_0 DECIMAL(20,4)
-            SQL;
-        $query_i = <<<SQL
-            UPDATE orders SET total_amount_alter_0 = total_amount
-            SQL;
-        $query_j = <<<SQL
-            ALTER TABLE orders
-            DROP COLUMN total_amount
-            SQL;
-        $query_k = <<<SQL
-            ALTER TABLE orders
-            RENAME COLUMN total_amount_alter_0 TO total_amount
-            SQL;
-                
-        // Mock connection.
-        $conn = $this->getMockBuilder(Connection::class)
-            ->setConstructorArgs([new DriverFactory(), 'sqlite::memory:'])
-            ->onlyMethods(['getStatement', 'query'])
-            ->getMock();
-        $conn
-            ->expects($this->exactly(11))
-            ->method('query')
-            ->withConsecutive(
-                [$this->equalTo($query_a)],
-                [$this->equalTo($query_b)],
-                [$this->equalTo($query_c)],
-                [$this->equalTo($query_d)],
-                [$this->equalTo($query_e)],
-                [$this->equalTo($query_f)],
-                [$this->equalTo($query_g)],
-                [$this->equalTo($query_h)],
-                [$this->equalTo($query_i)],
-                [$this->equalTo($query_j)],
-                [$this->equalTo($query_k)],
-            );
-        
-        // Instanciate schema.
+        // Instanciate connection and schema.
+        $conn = new Connection(new DriverFactory(), 'sqlite::memory:');
         $schema = new Schema($conn);
 
-        // Test all operations.
+        // Test creating table.
         $schema
-            // Create table.
             ->createTable(
                 'sales',
                 new ColumnDefinition('id', 'INTEGER', isPk: true, isAi: true),
@@ -156,21 +88,94 @@ class SchemaTest extends TestCase
                 new ColumnDefinition('amount', 'DECIMAL', 16, decimals: 2),
                 new ColumnDefinition('discount', 'DECIMAL', 16, decimals: 2),
             )
-            // Drop table.
+            ->createTable(
+                'useless_table',
+                new ColumnDefinition('useless_column', 'VARCHAR', 1),
+            );
+        
+        // Check tables.
+        $this->assertArrayIsLike(
+            ['sales', 'useless_table'],
+            $schema->getTables(),
+        );
+
+        // Insert some records.
+        $conn->query(<<<SQL
+            INSERT INTO sales (customer_id, amount, discount)
+            VALUES
+                (2, 200.01, 0.00),
+                (3, 145.22, 15.00),
+                (2, 741.98, 0.00),
+                (5, 14.87, 5.00),
+                (5, 652.44, 0.00),
+                (4, 89.66, 10.00)
+            SQL);
+        
+        // Test inserted records.
+        $expected_a = [
+            [1, 2, 200.01, 0],
+            [2, 3, 145.22, 15],
+            [3, 2, 741.98, 0],
+            [4, 5, 14.87, 5],
+            [5, 5, 652.44, 0],
+            [6, 4, 89.66, 10],
+        ];
+        $actual_a = $conn
+            ->query("SELECT * FROM sales")
+            ->listNum();
+        $this->assertArrayIsLike($expected_a, $actual_a);
+
+        // Drop and rename tables.
+        $schema
+            ->dropTable('useless_table')
             ->dropTable('inexistent_table', true)
-            // Rename table.
-            ->renameTable('sales', 'orders')
-            ->createColumn(
-                'orders',
-                new ColumnDefinition('employee_id', 'INT', 11)
-            )
+            ->renameTable('sales', 'orders');
+        
+        // Check tables.
+        $this->assertArrayIsLike(
+            ['orders'],
+            $schema->getTables(),
+        );
+
+        // Create a new column.
+        $schema->createColumn(
+            'orders',
+            new ColumnDefinition('employee_id', 'INT', 11)
+        );
+
+        // Update records.
+        $conn->query(<<<SQL
+            UPDATE orders SET employee_id = 2 WHERE 1
+            SQL);
+        
+        // Check updated records.
+        $expected_b = [[2], [2], [2], [2], [2], [2]];
+        $actual_b = $conn
+            ->query("SELECT employee_id FROM orders")
+            ->listNum();
+        $this->assertArrayIsLike($expected_b, $actual_b);
+        
+        // Drop and rename column.
+        $schema
             ->dropColumn('orders', 'discount')
-            ->renameColumn('orders', 'amount', 'total_amount')
+            ->renameColumn('orders', 'employee_id', 'person_id')
             ->alterColumn(
                 'orders',
-                'total_amount',
-                new ColumnDefinition('total_amount', 'DECIMAL', 20, decimals: 4),
+                'amount',
+                new ColumnDefinition('amount', 'DECIMAL', 20, decimals: 1),
             );
+        
+        // Check new structure.
+        $expected_c = [[
+            'id' => 3,
+            'customer_id' => 2,
+            'amount' => 742,
+            'person_id' => 2,
+        ]];
+        $expected_c = $conn
+            ->query("SELECT * FROM orders WHERE id = 3")
+            ->listNum();
+        $this->assertArrayIsLike($expected_c, $expected_c);
     }
 
     /**
@@ -204,12 +209,7 @@ class SchemaTest extends TestCase
         $schema = new Schema($conn);
         $expected = ['id', 'name', 'email', 'password_hash', 'is_active'];
         $actual = $schema->getColumns('users');
-        $this->assertIsArray($actual);
-        $this->assertCount(5, $actual);
-        foreach ($actual as $k => $v) {
-            $this->assertArrayHasKey($k, $expected);
-            $this->assertSame($expected[$k], $v);
-        }
+        $this->assertArrayIsLike($expected, $actual);
     }
 
     /**
