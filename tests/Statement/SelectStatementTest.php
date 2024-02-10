@@ -87,15 +87,15 @@ class SelectStatementTest extends TestCase
         
         // Test a complex query.
         $expected_b = <<<SQL
-            SELECT model, cars.brand_name AS brand, drivers.name AS driver
-            FROM cars
+            SELECT model, c.brand_name AS brand, drivers.name AS driver
+            FROM cars AS c
             LEFT JOIN customers AS drivers
-            ON drivers.id = cars.customer_id
-            WHERE cars.color = 'blue'
-            AND cars.registration IS NOT NULL
-            OR cars.is_registering = 1
+            ON drivers.id = c.customer_id
+            WHERE c.color = 'blue'
+            AND c.registration IS NOT NULL
+            OR c.is_registering = 1
             GROUP BY vin
-            ORDER BY drivers.name ASC, cars.id DESC
+            ORDER BY drivers.name ASC, c.id DESC
             LIMIT 100
             OFFSET 200
             SQL;
@@ -103,28 +103,40 @@ class SelectStatementTest extends TestCase
         // Build.
         $actual_b = (string) (new SelectStatement())
             ->addResultColumn('model')
-            ->addResultColumn('cars.brand_name', 'brand')
+            ->addResultColumn('c.brand_name', 'brand')
             ->addResultColumn('drivers.name', 'driver')
-            ->setFromClause('cars')
+            ->setFromClause('cars', 'c')
             ->addJoinClause(function (JoinClause $clause): void {
                 $clause
                     ->setOn('LEFT', 'customers', 'drivers')
-                    ->addConstraint('drivers.id', '=', 'cars.customer_id');
+                    ->addConstraint('drivers.id', '=', 'c.customer_id');
             })
             ->setWhereClause(function (WhereClause $clause): void {
                 $clause
-                    ->addConstraint('cars.color', '=', "'blue'")
-                    ->addConstraint('cars.registration', 'IS NOT NULL')
+                    ->addConstraint('c.color', '=', "'blue'")
+                    ->addConstraint('c.registration', 'IS NOT NULL')
                     ->setLogicalOperator('OR')
-                    ->addConstraint('cars.is_registering', '=', 1);
+                    ->addConstraint('c.is_registering', '=', 1);
             })
             ->groupRows('vin')
             ->orderRows('drivers.name')
-            ->orderRows('cars.id', 'DESC')
+            ->orderRows('c.id', 'DESC')
             ->setLimit(100)
             ->setOffset(200);
         
         // Compare.
         $this->assertSame($expected_b, $actual_b);
+
+        // Test query without FROM clause.
+        $expected_c = <<<SQL
+            SELECT 'Hello, World!' AS msg
+            SQL;
+        
+        // Build.
+        $actual_c = (string) (new SelectStatement())
+            ->addResultColumn("'Hello, World!'", 'msg');
+        
+        // Compare.
+        $this->assertSame($expected_c, $actual_c);
     }
 }
