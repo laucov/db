@@ -28,18 +28,16 @@
 
 declare(strict_types=1);
 
-namespace Tests\Setup;
+namespace Tests\Query;
 
 use Laucov\Db\Data\Connection;
 use Laucov\Db\Data\Driver\DriverFactory;
-use Laucov\Db\Setup\Schema;
+use Laucov\Db\Query\Schema;
 use Laucov\Db\Statement\ColumnDefinition;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 use Tests\AbstractArrayTest;
  
 /**
- * @coversDefaultClass \Laucov\Db\Setup\Schema
+ * @coversDefaultClass \Laucov\Db\Query\Schema
  */
 class SchemaTest extends AbstractArrayTest
 {
@@ -58,8 +56,8 @@ class SchemaTest extends AbstractArrayTest
      * @uses Laucov\Db\Data\Connection::listNum
      * @uses Laucov\Db\Data\Connection::query
      * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
-     * @uses Laucov\Db\Setup\Schema::getColumns
-     * @uses Laucov\Db\Setup\Schema::getTables
+     * @uses Laucov\Db\Query\Schema::getColumns
+     * @uses Laucov\Db\Query\Schema::getTables
      * @uses Laucov\Db\Statement\AlterTableStatement::__construct
      * @uses Laucov\Db\Statement\AlterTableStatement::__toString
      * @uses Laucov\Db\Statement\AlterTableStatement::addColumn
@@ -188,7 +186,7 @@ class SchemaTest extends AbstractArrayTest
      * @uses Laucov\Db\Data\Connection::listNum
      * @uses Laucov\Db\Data\Connection::query
      * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
-     * @uses Laucov\Db\Setup\Schema::__construct
+     * @uses Laucov\Db\Query\Schema::__construct
      */
     public function testCanGetTableColumns(): void
     {
@@ -222,7 +220,7 @@ class SchemaTest extends AbstractArrayTest
      * @uses Laucov\Db\Data\Connection::listNum
      * @uses Laucov\Db\Data\Connection::query
      * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
-     * @uses Laucov\Db\Setup\Schema::__construct
+     * @uses Laucov\Db\Query\Schema::__construct
      */
     public function testCanGetTables(): void
     {

@@ -26,7 +26,7 @@
  * @copyright © 2024 Laucov Serviços de Tecnologia da Informação Ltda.
  */
 
-namespace Laucov\Db\Setup;
+namespace Laucov\Db\Query;
 
 use Laucov\Db\Data\Connection;
 use Laucov\Db\Statement\AlterTableStatement;
