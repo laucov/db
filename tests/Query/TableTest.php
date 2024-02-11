@@ -85,6 +85,7 @@ final class TableTest extends TestCase
      * @uses Laucov\Db\Data\Connection::getStatement
      * @uses Laucov\Db\Data\Connection::listAssoc
      * @uses Laucov\Db\Data\Connection::query
+     * @uses Laucov\Db\Data\Connection::quoteIdentifier
      * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
      * @uses Laucov\Db\Query\Table::insertRecord
      * @uses Laucov\Db\Statement\AbstractJoinableStatement::compileFromClause
@@ -353,6 +354,101 @@ final class TableTest extends TestCase
                 ->on('l.user_id', '=', 'users.id')
             ->selectColumn('id');
         $this->assertArrayIsLike([2], $actual_r);
+    }
+
+    /**
+     * @coversNothing
+     */
+    public function testCoversIdentifiers(): void
+    {
+        // Set expected queries.
+        $queries = [
+            [$this->equalTo(<<<SQL
+                INSERT INTO "flights" ("call_sign", "aircraft", "from", "to")
+                VALUES
+                (:call_sign, :aircraft, :from, :to)
+                SQL)],
+            [$this->equalTo(<<<SQL
+                INSERT INTO "flights" ("call_sign", "aircraft", "from", "to")
+                VALUES
+                (:call_sign_0, :aircraft_0, :from_0, :to_0),
+                (:call_sign_1, :aircraft_1, :from_1, :to_1)
+                SQL)],
+            [$this->equalTo(<<<SQL
+                UPDATE "flights"
+                SET "created_at" = :created_at, "updated_at" = "created_at", "is_late" = :is_late
+                SQL)],
+            [$this->equalTo(<<<SQL
+                SELECT "aircraft", SUM("fuel_spent") AS "total_fuel", AVG("crew_members") AS "members_per_flight", COUNT("call_sign") AS "total_flights", MAX("total_time") AS "longest_flight", MIN("total_time") AS "shortest_flight"
+                FROM "flights"
+                WHERE "arrived_at" IS NOT NULL
+                GROUP BY "aircraft"
+                ORDER BY "aircraft" ASC
+                SQL)],
+        ];
+
+        // Mock connection.
+        $conn_mock = $this->getMockBuilder(Connection::class)
+            ->setConstructorArgs([new DriverFactory(), 'sqlite::memory:'])
+            ->onlyMethods(['getLastId', 'listAssoc', 'listClass', 'query'])
+            ->getMock();
+        $conn_mock
+            ->expects($this->exactly(count($queries)))
+            ->method('query')
+            ->withConsecutive(...$queries);
+        
+        // Create table instance.
+        $table = new Table($conn_mock, 'flights');
+
+        // Call insert methods.
+        $table->insertRecord([
+            'call_sign' => 'AD4439',
+            'aircraft' => 'PR-YSB',
+            'from' => 'POA',
+            'to' => 'GIG',
+        ]);
+        $table->insertRecords(
+            [
+                'call_sign' => null,
+                'aircraft' => 'PS-TAH',
+                'from' => 'POA',
+                'to' => null,
+            ],
+            [
+                'call_sign' => 'G31211',
+                'aircraft' => 'PR-XMQ',
+                'from' => 'POA',
+                'to' => 'CGH',
+            ],
+        );
+
+        // Call update methods.
+        $table
+            ->set('created_at', '2024-02-10 10:00:30')
+            ->set('updated_at', 'created_at', true)
+            ->updateRecords([
+                'is_late' => 0,
+            ]);
+        
+        // Test SELECT and constraints.
+        // @todo Make this test pass.
+        $table
+            ->pick('aircraft')
+            ->sum('fuel_spent', 'total_fuel')
+            ->average('crew_members', 'members_per_flight')
+            ->count('call_sign', 'total_flights')
+            ->findMax('total_time', 'longest_flight')
+            ->findMin('total_time', 'shortest_flight')
+            ->filter('arrived_at', '!=', null)
+            ->sort('aircraft')
+            ->group('aircraft')
+            ->selectRecords();
+        
+        // @todo ::deleteRecords
+        // @todo ::join
+        // @todo ::on - with column
+        // @todo ::on - with value
+        // @todo ::subquery
     }
 
     /**

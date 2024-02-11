@@ -234,8 +234,12 @@ class Table
         $columns = array_keys($values);
         $placeholders = array_map(fn (string $k) => ":{$k}", $columns);
 
+        // Quote identifiers.
+        $table_name = $this->connection->quoteIdentifier($this->tableName);
+        $columns = array_map([$this->connection, 'quoteIdentifier'], $columns);
+
         // Create statement.
-        $stmt = new InsertStatement($this->tableName);
+        $stmt = new InsertStatement($table_name);
         $stmt
             ->setColumns(...$columns)
             ->addRowValues(...$placeholders);
@@ -253,11 +257,15 @@ class Table
      */
     public function insertRecords(array ...$list): string
     {
-        // Get placeholders.
-        $columns = array_keys($list[0]);
+        // Get identifiers.
+        $table_name = $this->connection->quoteIdentifier($this->tableName);
+        $columns = array_map(
+            [$this->connection, 'quoteIdentifier'],
+            array_keys($list[0]),
+        );
 
         // Create statement.
-        $stmt = new InsertStatement($this->tableName);
+        $stmt = new InsertStatement($table_name);
         $stmt->setColumns(...$columns);
         
         // Set rows.
@@ -435,13 +443,15 @@ class Table
         bool $value_is_column = false,
     ): static {
         // Create value placeholder.
-        if (!$value_is_column) {
-            $placeholder = $this->createPlaceholderName($column_name);
-            $this->parameters[$placeholder] = $value;
-            $value = ':' . $placeholder;
+        if ($value_is_column) {
+            $value = $this->connection->quoteIdentifier($value);
+        } else {
+            $this->parameters[$column_name] = $value;
+            $value = ':' . $column_name;
         }
 
         // Store value.
+        $column_name = $this->connection->quoteIdentifier($column_name);
         $this->values[$column_name] = $value;
 
         return $this;
@@ -480,7 +490,8 @@ class Table
     public function updateRecords(array $values = []): void
     {
         // Initialize statement.
-        $stmt = new UpdateStatement($this->tableName);
+        $table_name = $this->connection->quoteIdentifier($this->tableName);
+        $stmt = new UpdateStatement($table_name);
 
         // Set values.
         foreach ($this->values as $key => $value) {
@@ -488,7 +499,8 @@ class Table
         }
         foreach ($values as $key => $value) {
             $this->parameters[$key] = $value;
-            $stmt->setValue($key, ':' . $key);
+            $column_name = $this->connection->quoteIdentifier($key);
+            $stmt->setValue($column_name, ':' . $key);
         }
 
         // Add conditional clauses.
@@ -605,6 +617,12 @@ class Table
             $value = ":{$placeholder}";
         }
 
+        // Quote column name.
+        $column_name = $this->connection->quoteIdentifier($column_name);
+        if (is_string($value) && $value_is_column) {
+            $value = $this->connection->quoteIdentifier($value);
+        }
+
         // Add call.
         $this->clauseCalls[] = [
             'addConstraint',
@@ -662,6 +680,13 @@ class Table
                 $this->parameters[$placeholder] = $value;
                 $values[$i] = ":{$placeholder}";
             }
+        }
+        $column_name = $this->connection->quoteIdentifier($column_name);
+        if ($value_is_column) {
+            $values = array_map(
+                [$this->connection, 'quoteIdentifier'],
+                $values,
+            );
         }
         $values = '(' . implode(', ', $values) . ')';
 
