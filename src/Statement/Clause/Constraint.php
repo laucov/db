@@ -55,7 +55,7 @@ class Constraint implements \Stringable
         /**
          * Second expression to compare with the first one.
          */
-        public null|int|string|array $expressionB = null,
+        public null|string|array $expressionB = null,
 
         /**
          * Number of constraint groups to open.

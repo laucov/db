@@ -56,7 +56,7 @@ class AbstractConditionalClause
     public function addConstraint(
         string $expression_a,
         null|string $operator = null,
-        null|int|string|array $expression_b = null,
+        null|int|float|string|array $expression_b = null,
     ): static {
         // Set comparison operator.
         $comparison_operator = $operator !== null

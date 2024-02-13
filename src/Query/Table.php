@@ -203,7 +203,7 @@ class Table
     public function filter(
         string $column_name,
         string $operator,
-        null|int|string|array $value,
+        null|int|float|string|array $value,
     ): static {
         $this->clauseCalls = &$this->whereClauseCalls;
         $this->constrain($column_name, $operator, $value, false);
@@ -361,7 +361,7 @@ class Table
     public function on(
         string $column_name,
         string $operator,
-        null|int|string|array $value,
+        null|int|float|string|array $value,
         bool $value_is_column = true,
     ): static {
         // Get last JOIN clause argument list.
@@ -599,7 +599,7 @@ class Table
     protected function constrain(
         string $column_name,
         string $operator,
-        null|int|string|array $value,
+        null|int|float|string|array $value,
         bool $value_is_column,
     ): void {
         // Find filter operator.

@@ -60,7 +60,7 @@ class ConstraintTest extends TestCase
             ],
             [
                 'age',
-                "36",
+                '36',
                 [
                     ComparisonOperator::GREATER_THAN,
                     ComparisonOperator::GREATER_THAN_OR_EQUAL_TO,
@@ -142,7 +142,7 @@ class ConstraintTest extends TestCase
                 $logical_operator,
                 'is_active',
                 ComparisonOperator::EQUAL_TO,
-                1,
+                '1',
             ));
         }
 
