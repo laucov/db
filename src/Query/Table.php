@@ -424,9 +424,11 @@ class Table
     /**
      * Run a SELECT query using the defined conditions.
      * 
-     * @todo Allow setting a class name to return objects instead of arrays.
+     * @template T
+     * @param null|class-string<T> $class_name
+     * @return ($class_name is string ? array<T> : array<array>)
      */
-    public function selectRecords(): array
+    public function selectRecords(null|string $class_name = null): array
     {
         // Initialize statement.
         $stmt = new SelectStatement();
@@ -476,7 +478,9 @@ class Table
         $this->connection->query($stmt, $this->parameters);
         $this->resetTemporaryProperties();
 
-        return $this->connection->listAssoc();
+        return $class_name !== null
+            ? $this->connection->listClass($class_name)
+            : $this->connection->listAssoc();
     }
 
     /**

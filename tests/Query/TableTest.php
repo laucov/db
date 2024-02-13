@@ -358,9 +358,39 @@ final class TableTest extends TestCase
     }
 
     /**
+     * @covers ::selectRecords
+     * @uses Laucov\Db\Data\Connection::__construct
+     * @uses Laucov\Db\Data\Connection::getStatement
+     * @uses Laucov\Db\Data\Connection::listClass
+     * @uses Laucov\Db\Data\Connection::query
+     * @uses Laucov\Db\Data\Connection::quoteIdentifier
+     * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
+     * @uses Laucov\Db\Query\Table::__construct
+     * @uses Laucov\Db\Query\Table::applyWhereClause
+     * @uses Laucov\Db\Query\Table::resetTemporaryProperties
+     * @uses Laucov\Db\Statement\AbstractJoinableStatement::compileFromClause
+     * @uses Laucov\Db\Statement\AbstractJoinableStatement::setFromClause
+     * @uses Laucov\Db\Statement\SelectStatement::__toString
+     */
+    public function testCanSelectWithClassName(): void
+    {
+        // Get records as objects.
+        $entities = $this->table->selectRecords(User::class);
+
+        // Compare values.
+        foreach ($this->records as $i => $record) {
+            $entity = $entities[$i];
+            $this->assertInstanceOf(User::class, $entity);
+            foreach ($record as $key => $value) {
+                $this->assertSame($value, $entity->$key);
+            }
+        }
+    }
+
+    /**
      * @coversNothing
      */
-    public function testCoversIdentifiers(): void
+    public function testQuotesIdentifiers(): void
     {
         // Set expected queries.
         $queries = [
@@ -610,4 +640,18 @@ final class TableTest extends TestCase
         // Create table instance.
         $this->table = new Table($this->conn, 'users');
     }
+}
+
+/**
+ * Represents a user record.
+ */
+class User
+{
+    public int $id;
+    public null|string $name;
+    public null|string $login;
+    public null|string $birth;
+    public null|string $gender;
+    public null|string $tin;
+    public null|int $score;
 }
