@@ -49,7 +49,7 @@ class DriverFactory
     {
         // Get driver class.
         if (!array_key_exists($name, $this->drivers)) {
-            $message = 'No driver is registered under the name "%s".';
+            $message = 'No driver is registered for "%s".';
             throw new \RuntimeException(sprintf($message, $name));
         }
         $class_name = $this->drivers[$name];
