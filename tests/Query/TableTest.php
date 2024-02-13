@@ -35,6 +35,7 @@ use Laucov\Db\Data\Driver\DriverFactory;
 use Laucov\Db\Query\Table;
 use Laucov\Db\Statement\Clause\WhereClause;
 use Laucov\Db\Statement\SelectStatement;
+use PHPUnit\Framework\Constraint\RegularExpression;
 use PHPUnit\Framework\TestCase;
  
 /**
@@ -378,12 +379,25 @@ final class TableTest extends TestCase
                 UPDATE "flights"
                 SET "created_at" = :created_at, "updated_at" = "created_at", "is_late" = :is_late
                 SQL)],
-            [$this->equalTo(<<<SQL
-                SELECT "aircraft", SUM("fuel_spent") AS "total_fuel", AVG("crew_members") AS "members_per_flight", COUNT("call_sign") AS "total_flights", MAX("total_time") AS "longest_flight", MIN("total_time") AS "shortest_flight"
+            [$this->matchesQuery(<<<SQL
+                SELECT "aircrafts"."registration", SUM("fuel_spent") AS "total_fuel", AVG("crew_members") AS "members_per_flight", COUNT("call_sign") AS "total_flights", MAX("total_time") AS "longest_flight", MIN("total_time") AS "shortest_flight"
                 FROM "flights"
+                INNER JOIN "aircrafts"
+                ON "aircrafts"."id" = "flights"."aircraft_id"
+                AND "aircrafts"."is_active" = :aircrafts_is_active_UNIQID_SUFFIX
                 WHERE "arrived_at" IS NOT NULL
                 GROUP BY "aircraft"
                 ORDER BY "aircraft" ASC
+                SQL)],
+            [$this->matchesQuery(<<<SQL
+                DELETE FROM "flights"
+                WHERE "archived_at" < :archived_at_UNIQID_SUFFIX
+                SQL)],
+            [$this->equalTo(<<<SQL
+                SELECT (SELECT COUNT(passengers.id)
+                FROM passengers
+                WHERE flights.id = passengers.flight_id) AS "total_passengers"
+                FROM "flights"
                 SQL)],
         ];
 
@@ -431,24 +445,38 @@ final class TableTest extends TestCase
             ]);
         
         // Test SELECT and constraints.
-        // @todo Make this test pass.
         $table
-            ->pick('aircraft')
+            ->pick('aircrafts.registration')
             ->sum('fuel_spent', 'total_fuel')
             ->average('crew_members', 'members_per_flight')
             ->count('call_sign', 'total_flights')
             ->findMax('total_time', 'longest_flight')
             ->findMin('total_time', 'shortest_flight')
+            ->join('aircrafts', null, 'INNER')
+                ->on('aircrafts.id', '=', 'flights.aircraft_id')
+                ->on('aircrafts.is_active', '=', 1, false)
             ->filter('arrived_at', '!=', null)
             ->sort('aircraft')
             ->group('aircraft')
             ->selectRecords();
         
-        // @todo ::deleteRecords
-        // @todo ::join
-        // @todo ::on - with column
-        // @todo ::on - with value
-        // @todo ::subquery
+        // Test DELETE.
+        $table
+            ->filter("archived_at", '<', '2023-01-01 00:00:00')
+            ->deleteRecords();
+        
+        // Test SELECT with subquery.
+        // Note: this is a bad subquery example that
+        // could be easily replaced by a JOIN clause.
+        $subquery = (new SelectStatement())
+            ->setFromClause('passengers')
+            ->addResultColumn('COUNT(passengers.id)')
+            ->setWhereClause(function (WhereClause $clause) {
+                $clause->addConstraint('flights.id', '=', 'passengers.flight_id');
+            });
+        $table
+            ->subquery($subquery, 'total_passengers')
+            ->selectRecords();
     }
 
     /**
@@ -486,6 +514,13 @@ final class TableTest extends TestCase
         }
 
         return $result;
+    }
+
+    protected function matchesQuery(string $statement): RegularExpression
+    {
+        $statement = preg_quote($statement, '/');
+        $pattern = str_replace('UNIQID_SUFFIX', '[\da-f]+', $statement);
+        return $this->matchesRegularExpression('/^' . $pattern . '$/');
     }
 
     protected function setUp(): void

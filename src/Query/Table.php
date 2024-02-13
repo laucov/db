@@ -133,7 +133,13 @@ class Table
      */
     public function average(string $column_name, string $alias): static
     {
+        // Quote identifiers.
+        $column_name = $this->connection->quoteIdentifier($column_name);
+        $alias = $this->connection->quoteIdentifier($alias);
+
+        // Add column.
         $this->resultColumns[] = ["AVG({$column_name})", $alias];
+
         return $this;
     }
 
@@ -151,7 +157,13 @@ class Table
      */
     public function count(string $column_name, string $alias): static
     {
+        // Quote identifiers.
+        $column_name = $this->connection->quoteIdentifier($column_name);
+        $alias = $this->connection->quoteIdentifier($alias);
+
+        // Add column.
         $this->resultColumns[] = ["COUNT({$column_name})", $alias];
+
         return $this;
     }
 
@@ -174,7 +186,8 @@ class Table
     public function deleteRecords(): void
     {
         // Initialize statement.
-        $stmt = new DeleteStatement($this->tableName);
+        $table_name = $this->connection->quoteIdentifier($this->tableName);
+        $stmt = new DeleteStatement($table_name);
 
         // Add conditional clauses.
         $this->applyWhereClause($stmt);
@@ -203,7 +216,13 @@ class Table
      */
     public function findMax(string $column_name, string $alias): static
     {
+        // Quote identifiers.
+        $column_name = $this->connection->quoteIdentifier($column_name);
+        $alias = $this->connection->quoteIdentifier($alias);
+
+        // Add column.
         $this->resultColumns[] = ["MAX({$column_name})", $alias];
+
         return $this;
     }
 
@@ -212,7 +231,13 @@ class Table
      */
     public function findMin(string $column_name, string $alias): static
     {
+        // Quote identifiers.
+        $column_name = $this->connection->quoteIdentifier($column_name);
+        $alias = $this->connection->quoteIdentifier($alias);
+
+        // Add column.
         $this->resultColumns[] = ["MIN({$column_name})", $alias];
+
         return $this;
     }
 
@@ -221,7 +246,9 @@ class Table
      */
     public function group(string $column_name): static
     {
+        $column_name = $this->connection->quoteIdentifier($column_name);
         $this->groupingColumnName = $column_name;
+
         return $this;
     }
 
@@ -290,15 +317,21 @@ class Table
      */
     public function join(
         string|SelectStatement $table_name,
-        null|string $alias,
+        null|string $alias = null,
         string $operator = 'LEFT',
     ): static {
-        if (!is_string($table_name)) {
+        // Quote table/statement.
+        if (is_string($table_name)) {
+            $table_name = $this->connection->quoteIdentifier($table_name);
+        } else {
             $table_name = "({$table_name})";
         }
 
+        // Add JOIN clause.
         $calls = [];
         $this->joinClauses[] = [$operator, $table_name, $alias, &$calls];
+
+        // Set the current clause as the active one.
         $this->clauseCalls = &$calls;
 
         return $this;
@@ -328,11 +361,14 @@ class Table
     public function on(
         string $column_name,
         string $operator,
-        string $value,
+        null|int|string|array $value,
         bool $value_is_column = true,
     ): static {
+        // Get last JOIN clause argument list.
         $last_key = array_key_last($this->joinClauses);
         $this->clauseCalls = &$this->joinClauses[$last_key][3];
+
+        // Add constraint.
         $this->constrain($column_name, $operator, $value, $value_is_column);
 
         return $this;
@@ -365,7 +401,15 @@ class Table
         string $column_name,
         null|string $alias = null,
     ): static {
+        // Quote identifiers.
+        $column_name = $this->connection->quoteIdentifier($column_name);
+        $alias = $alias !== null
+            ? $this->connection->quoteIdentifier($alias)
+            : null;
+
+        // Add column.
         $this->resultColumns[] = [$column_name, $alias];
+
         return $this;
     }
 
@@ -386,7 +430,8 @@ class Table
     {
         // Initialize statement.
         $stmt = new SelectStatement();
-        $stmt->setFromClause($this->tableName);
+        $table_name = $this->connection->quoteIdentifier($this->tableName);
+        $stmt->setFromClause($table_name);
 
         // Add result columns.
         foreach ($this->resultColumns as $arguments) {
@@ -462,7 +507,9 @@ class Table
      */
     public function sort(string $column_name, bool $descending = false): static
     {
+        $column_name = $this->connection->quoteIdentifier($column_name);
         $this->ordering[] = [$column_name, $descending ? 'DESC' : 'ASC'];
+
         return $this;
     }
 
@@ -471,7 +518,9 @@ class Table
      */
     public function subquery(SelectStatement $statement, string $alias): static
     {
+        $alias = $this->connection->quoteIdentifier($alias);
         $this->resultColumns[] = ["({$statement})", $alias];
+        
         return $this;
     }
 
@@ -480,7 +529,13 @@ class Table
      */
     public function sum(string $column_name, string $alias): static
     {
+        // Quote identifiers.
+        $column_name = $this->connection->quoteIdentifier($column_name);
+        $alias = $this->connection->quoteIdentifier($alias);
+
+        // Add column.
         $this->resultColumns[] = ["SUM({$column_name})", $alias];
+
         return $this;
     }
 
