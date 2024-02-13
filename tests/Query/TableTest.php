@@ -380,7 +380,12 @@ final class TableTest extends TestCase
                 SET "created_at" = :created_at, "updated_at" = "created_at", "is_late" = :is_late
                 SQL)],
             [$this->matchesQuery(<<<SQL
-                SELECT "aircrafts"."registration", SUM("fuel_spent") AS "total_fuel", AVG("crew_members") AS "members_per_flight", COUNT("call_sign") AS "total_flights", MAX("total_time") AS "longest_flight", MIN("total_time") AS "shortest_flight"
+                SELECT "aircrafts"."registration",
+                SUM("fuel_spent") AS "total_fuel",
+                AVG("crew_members") AS "members_per_flight",
+                COUNT("call_sign") AS "total_flights",
+                MAX("total_time") AS "longest_flight",
+                MIN("total_time") AS "shortest_flight"
                 FROM "flights"
                 INNER JOIN "aircrafts"
                 ON "aircrafts"."id" = "flights"."aircraft_id"

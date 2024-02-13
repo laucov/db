@@ -76,7 +76,7 @@ class SelectStatement extends AbstractJoinableStatement
     {
         // Add columns.
         $columns = count($this->resultColumns) > 0
-            ? implode(', ', $this->resultColumns)
+            ? implode(",\n", $this->resultColumns)
             : '*';
         $statement = "SELECT {$columns}";
 

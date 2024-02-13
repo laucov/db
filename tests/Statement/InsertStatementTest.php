@@ -80,7 +80,9 @@ class InsertStatementTest extends TestCase
         // Test subquery insertion.
         $expected_b = <<<SQL
             INSERT INTO products_backup
-            (SELECT descr, color, price
+            (SELECT descr,
+            color,
+            price
             FROM products
             WHERE 1)
             SQL;
@@ -101,7 +103,7 @@ class InsertStatementTest extends TestCase
         $this->assertSame($expected_b, (string) $stmt_b);
 
         // Test resetting to row values.
-        // Shall not contain the SELECT statement.
+        // The statement should not keep the SELECT statement.
         $expected_c = <<<SQL
             INSERT INTO products_backup (descr, color, price)
             VALUES
@@ -116,7 +118,9 @@ class InsertStatementTest extends TestCase
         // Shall not contain the value lists.
         $expected_d = <<<SQL
             INSERT INTO products_backup (descr, color, price)
-            (SELECT descr, color, price
+            (SELECT descr,
+            color,
+            price
             FROM products
             WHERE 1)
             SQL;

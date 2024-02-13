@@ -87,7 +87,9 @@ class SelectStatementTest extends TestCase
         
         // Test a complex query.
         $expected_b = <<<SQL
-            SELECT model, c.brand_name AS brand, drivers.name AS driver
+            SELECT model,
+            c.brand_name AS brand,
+            drivers.name AS driver
             FROM cars AS c
             LEFT JOIN customers AS drivers
             ON drivers.id = c.customer_id
