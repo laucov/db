@@ -51,12 +51,14 @@ final class TableTest extends TestCase
 
     /**
      * @covers ::autoReset
+     * @covers ::countRecords
      * @covers ::reset
      * @uses Laucov\Db\Data\Connection::__construct
      * @uses Laucov\Db\Data\Connection::query
      * @uses Laucov\Db\Data\Connection::quoteIdentifier
      * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
      * @uses Laucov\Db\Query\Table::__construct
+     * @uses Laucov\Db\Query\Table::applySelectStatementClauses
      * @uses Laucov\Db\Query\Table::applyWhereClause
      * @uses Laucov\Db\Query\Table::constrain
      * @uses Laucov\Db\Query\Table::createPlaceholderName
@@ -91,6 +93,17 @@ final class TableTest extends TestCase
                 WHERE "airline" = :airline_UNIQID_SUFFIX
                 SQL)],
             [$this->matchesQuery(<<<SQL
+                SELECT COUNT("id") AS "id"
+                FROM "airplanes"
+                WHERE "airline" = :airline_UNIQID_SUFFIX
+                SQL)],
+            [$this->matchesQuery(<<<SQL
+                SELECT COUNT("id") AS "count_alias",
+                "model"
+                FROM "airplanes"
+                WHERE "airline" = :airline_UNIQID_SUFFIX
+                SQL)],
+            [$this->matchesQuery(<<<SQL
                 SELECT "model",
                 "registration"
                 FROM "airplanes"
@@ -107,12 +120,24 @@ final class TableTest extends TestCase
         // Mock connection.
         $conn_mock = $this->getMockBuilder(Connection::class)
             ->setConstructorArgs([new DriverFactory(), 'sqlite::memory:'])
-            ->onlyMethods(['getLastId', 'listAssoc', 'listClass', 'query'])
+            ->onlyMethods([
+                'getLastId',
+                'fetchAssoc',
+                'listAssoc',
+                'listClass',
+                'query',
+            ])
             ->getMock();
         $conn_mock
             ->expects($this->exactly(count($queries)))
             ->method('query')
             ->withConsecutive(...$queries);
+        $conn_mock
+            ->method('fetchAssoc')
+            ->willReturnOnConsecutiveCalls(
+                ['id' => 0],
+                ['count_alias' => 0],
+            );
         
         // Create table instance.
         $table = new Table($conn_mock, 'airplanes');
@@ -129,6 +154,8 @@ final class TableTest extends TestCase
             ->pick('model')
             ->filter('airline', '=', 'Latam')
             ->selectRecords();
+        $table->countRecords('id');
+        $table->countRecords('id', 'count_alias', true);
         $table
             ->pick('registration')
             ->filter('manufacturer', '=', 'Airbus')
@@ -144,6 +171,7 @@ final class TableTest extends TestCase
 
     /**
      * @covers ::__construct
+     * @covers ::applySelectStatementClauses
      * @covers ::applyWhereClause
      * @covers ::average
      * @covers ::closeGroup
@@ -175,6 +203,7 @@ final class TableTest extends TestCase
      * @covers ::sum
      * @covers ::updateRecords
      * @uses Laucov\Db\Data\Connection::__construct
+     * @uses Laucov\Db\Data\Connection::fetchAssoc
      * @uses Laucov\Db\Data\Connection::getLastId
      * @uses Laucov\Db\Data\Connection::getStatement
      * @uses Laucov\Db\Data\Connection::listAssoc
@@ -474,6 +503,7 @@ final class TableTest extends TestCase
      * @uses Laucov\Db\Data\Connection::quoteIdentifier
      * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
      * @uses Laucov\Db\Query\Table::__construct
+     * @uses Laucov\Db\Query\Table::applySelectStatementClauses
      * @uses Laucov\Db\Query\Table::applyWhereClause
      * @uses Laucov\Db\Query\Table::autoReset
      * @uses Laucov\Db\Query\Table::reset

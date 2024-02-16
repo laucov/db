@@ -177,12 +177,38 @@ class Table
      * 
      * Mind - when choosing the column name - that NULL values are not counted.
      */
-    public function countRecords(string $column_name): int
-    {
-        $alias = uniqid('count_');
-        return $this
-            ->count($column_name, $alias)
-            ->selectRecords()[0][$alias];
+    public function countRecords(
+        string $column_name,
+        null|string $column_alias = null,
+        bool $use_columns = false,
+    ): int {
+        // Initialize statement.
+        $stmt = new SelectStatement();
+
+        // Create count key.
+        $key = $column_alias ?? $column_name;
+
+        // Quote identifiers and add column.
+        $column_name = $this->connection->quoteIdentifier($column_name);
+        $column_alias = $this->connection->quoteIdentifier($key);
+        $column = 'COUNT(' . $column_name . ')';
+        $stmt->addResultColumn($column, $column_alias);
+
+        // Apply other columns.
+        if ($use_columns) {
+            foreach ($this->resultColumns as $arguments) {
+                $stmt->addResultColumn(...$arguments);
+            }
+        }
+
+        // Apply clauses.
+        $this->applySelectStatementClauses($stmt);
+
+        // Execute the statement.
+        $this->connection->query($stmt, $this->parameters);
+        $this->autoReset();
+
+        return $this->connection->fetchAssoc()[$key];
     }
 
     /**
@@ -456,47 +482,14 @@ class Table
     {
         // Initialize statement.
         $stmt = new SelectStatement();
-        $table_name = $this->connection->quoteIdentifier($this->tableName);
-        $stmt->setFromClause($table_name);
 
-        // Add result columns.
+        // Add columns.
         foreach ($this->resultColumns as $arguments) {
             $stmt->addResultColumn(...$arguments);
         }
 
-        // Check if any JOIN clauses are set.
-        foreach ($this->joinClauses as $j) {
-            // Initialize a new clause.
-            $stmt->addJoinClause(function (JoinClause $clause) use ($j): void {
-                // Apply each registered call for this clause.
-                [$operator, $table, $alias, $calls] = $j;
-                $clause->setOn($operator, $table, $alias);
-                foreach ($calls as [$method, $arguments]) {
-                    call_user_func_array([$clause, $method], $arguments);
-                }
-            });
-        }
-
-        // Add WHERE clause.
-        $this->applyWhereClause($stmt);
-
-        // Set grouping.
-        if ($this->groupingColumnName !== null) {
-            $stmt->groupRows($this->groupingColumnName);
-        }
-
-        // Set ordering.
-        foreach ($this->ordering as $arguments) {
-            $stmt->orderRows(...$arguments);
-        }
-
-        // Set offset and limit.
-        if ($this->limit !== null) {
-            $stmt->setLimit($this->limit);
-        }
-        if ($this->offset !== null) {
-            $stmt->setOffset($this->offset);
-        }
+        // Apply clauses.
+        $this->applySelectStatementClauses($stmt);
 
         // Execute the statement.
         $this->connection->query($stmt, $this->parameters);
@@ -595,6 +588,50 @@ class Table
     }
 
     /**
+     * Apply SELECT related clauses.
+     */
+    protected function applySelectStatementClauses(SelectStatement $stmt): void
+    {
+        // Set FROM clause.
+        $table_name = $this->connection->quoteIdentifier($this->tableName);
+        $stmt->setFromClause($table_name);
+
+        // Check if any JOIN clauses are set.
+        foreach ($this->joinClauses as $j) {
+            // Initialize a new clause.
+            $stmt->addJoinClause(function (JoinClause $clause) use ($j): void {
+                // Apply each registered call for this clause.
+                [$operator, $table, $alias, $calls] = $j;
+                $clause->setOn($operator, $table, $alias);
+                foreach ($calls as [$method, $arguments]) {
+                    call_user_func_array([$clause, $method], $arguments);
+                }
+            });
+        }
+
+        // Add WHERE clause.
+        $this->applyWhereClause($stmt);
+
+        // Set grouping.
+        if ($this->groupingColumnName !== null) {
+            $stmt->groupRows($this->groupingColumnName);
+        }
+
+        // Set ordering.
+        foreach ($this->ordering as $arguments) {
+            $stmt->orderRows(...$arguments);
+        }
+
+        // Set offset and limit.
+        if ($this->limit !== null) {
+            $stmt->setLimit($this->limit);
+        }
+        if ($this->offset !== null) {
+            $stmt->setOffset($this->offset);
+        }
+    }
+
+    /**
      * Apply WHERE clause calls to the given statement.
      */
     protected function applyWhereClause(
@@ -609,6 +646,16 @@ class Table
                     call_user_func_array([$clause, $method], $arguments);
                 }
             });
+        }
+    }
+
+    /**
+     * Execute `reset()` if auto reset is on.
+     */
+    protected function autoReset(): void
+    {
+        if ($this->autoReset) {
+            $this->reset();
         }
     }
 
@@ -782,16 +829,6 @@ class Table
             'addConstraint',
             [$column_name, $in_operator, $values],
         ];
-    }
-
-    /**
-     * Execute `reset()` if auto reset is on.
-     */
-    protected function autoReset(): void
-    {
-        if ($this->autoReset) {
-            $this->reset();
-        }
     }
 
     /**
