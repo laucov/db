@@ -450,6 +450,19 @@ final class TableTest extends TestCase
                 ->on('l.user_id', '=', 'users.id')
             ->selectColumn('id');
         $this->assertArrayIsLike([2], $actual_r);
+
+        // Test using IN with columns.
+        $table = new Table($this->conn, 'products');
+        $not_in = [
+            'suggested_price_a',
+            'suggested_price_b',
+            'suggested_price_c',
+        ];
+        $actual_s = $table
+            ->pick('code')
+            ->filter('current_price', '!=', $not_in, true)
+            ->selectColumn('code');
+        $this->assertArrayIsLike(['PROD_B', 'PROD_D'], $actual_s);
     }
 
     /**
@@ -531,6 +544,11 @@ final class TableTest extends TestCase
                 WHERE flights.id = passengers.flight_id) AS "total_passengers"
                 FROM "flights"
                 SQL)],
+            [$this->equalTo(<<<SQL
+                SELECT "code"
+                FROM "products"
+                WHERE "current_price" NOT IN ("suggested_price_a", "suggested_price_b", "suggested_price_c")
+                SQL)],
         ];
 
         // Mock connection.
@@ -609,6 +627,18 @@ final class TableTest extends TestCase
         $table
             ->subquery($subquery, 'total_passengers')
             ->selectRecords();
+        
+        // Test SELECT with columns inside IN operator.
+        $table = new Table($conn_mock, 'products');
+        $not_in = [
+            'suggested_price_a',
+            'suggested_price_b',
+            'suggested_price_c',
+        ];
+        $table
+            ->pick('code')
+            ->filter('current_price', '!=', $not_in, true)
+            ->selectColumn('code');
     }
 
     /**
@@ -675,19 +705,19 @@ final class TableTest extends TestCase
                 )
                 SQL)
             ->query(<<<SQL
+                INSERT INTO "users" ("name", "login", "birth", "gender", "tin", "score")
+                VALUES
+                ('John Doe', 'j.doe', '1988-02-14', 'm', '123456789', 44),
+                ('Michael Scott', 'm.scott', '1965-03-15', 'm', NULL, 25),
+                ('Mary Poppins', 'm.poppins', '1972-12-20', 'f', '987654321', 74)
+                SQL)
+            ->query(<<<SQL
                 CREATE TABLE "logins" (
                     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
                     "user_id" INT(11),
                     "is_successful" INT(1),
                     "attempted_at" DATETIME
                 )
-                SQL)
-            ->query(<<<SQL
-                INSERT INTO "users" ("name", "login", "birth", "gender", "tin", "score")
-                VALUES
-                ('John Doe', 'j.doe', '1988-02-14', 'm', '123456789', 44),
-                ('Michael Scott', 'm.scott', '1965-03-15', 'm', NULL, 25),
-                ('Mary Poppins', 'm.poppins', '1972-12-20', 'f', '987654321', 74)
                 SQL)
             ->query(<<<SQL
                 INSERT INTO "logins" ("user_id", "is_successful", "attempted_at")
@@ -701,6 +731,28 @@ final class TableTest extends TestCase
                 (2, 0, '2024-02-06 04:08:58'),
                 (2, 0, '2024-02-06 04:09:23'),
                 (2, 1, '2024-02-06 09:59:10')
+                SQL)
+            ->query(<<<SQL
+                CREATE TABLE "products" (
+                    "code" VARCHAR(16) PRIMARY KEY,
+                    "current_price" DECIMAL(20, 2),
+                    "suggested_price_a" DECIMAL(20, 2),
+                    "suggested_price_b" DECIMAL(20, 2),
+                    "suggested_price_c" DECIMAL(20, 2)
+                )
+                SQL)
+            ->query(<<<SQL
+                INSERT INTO "products" (
+                    "code",
+                    "current_price",
+                    "suggested_price_a",
+                    "suggested_price_b",
+                    "suggested_price_c"
+                )
+                VALUES ('PROD_A', 2.50, 2.60, 2.50, 2.40),
+                    ('PROD_B', 10.44, 11.52, 11.20, 11.00),
+                    ('PROD_C', 6.54, 7.01, 6.75, 6.54),
+                    ('PROD_D', 3.52, 3.41, 3.33, 3.14)
                 SQL);
 
         // Set records.

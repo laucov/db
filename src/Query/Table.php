@@ -209,9 +209,10 @@ class Table
         string $column_name,
         string $operator,
         null|int|float|string|array $value,
+        bool $value_is_column = false,
     ): static {
         $this->clauseCalls = &$this->whereClauseCalls;
-        $this->constrain($column_name, $operator, $value, false);
+        $this->constrain($column_name, $operator, $value, $value_is_column);
 
         return $this;
     }
@@ -763,6 +764,8 @@ class Table
                 $values[$i] = ":{$placeholder}";
             }
         }
+
+        // Quote column names.
         $column_name = $this->connection->quoteIdentifier($column_name);
         if ($value_is_column) {
             $values = array_map(
@@ -770,6 +773,8 @@ class Table
                 $values,
             );
         }
+
+        // Build IN/NOT IN list.
         $values = '(' . implode(', ', $values) . ')';
 
         // Add call.
