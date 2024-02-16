@@ -50,6 +50,99 @@ final class TableTest extends TestCase
     protected Table $table;
 
     /**
+     * @covers ::autoReset
+     * @covers ::reset
+     * @uses Laucov\Db\Data\Connection::__construct
+     * @uses Laucov\Db\Data\Connection::query
+     * @uses Laucov\Db\Data\Connection::quoteIdentifier
+     * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
+     * @uses Laucov\Db\Query\Table::__construct
+     * @uses Laucov\Db\Query\Table::applyWhereClause
+     * @uses Laucov\Db\Query\Table::constrain
+     * @uses Laucov\Db\Query\Table::createPlaceholderName
+     * @uses Laucov\Db\Query\Table::filter
+     * @uses Laucov\Db\Query\Table::pick
+     * @uses Laucov\Db\Query\Table::resetTemporaryProperties
+     * @uses Laucov\Db\Query\Table::selectRecords
+     * @uses Laucov\Db\Statement\AbstractConditionalStatement::setWhereClause
+     * @uses Laucov\Db\Statement\AbstractJoinableStatement::compileFromClause
+     * @uses Laucov\Db\Statement\AbstractJoinableStatement::setFromClause
+     * @uses Laucov\Db\Statement\Clause\AbstractConditionalClause::addConstraint
+     * @uses Laucov\Db\Statement\Clause\Constraint::__construct
+     * @uses Laucov\Db\Statement\Clause\Constraint::__toString
+     * @uses Laucov\Db\Statement\Clause\WhereClause::__toString
+     * @uses Laucov\Db\Statement\ResultColumn::__construct
+     * @uses Laucov\Db\Statement\ResultColumn::__toString
+     * @uses Laucov\Db\Statement\SelectStatement::__toString
+     * @uses Laucov\Db\Statement\SelectStatement::addResultColumn
+     */
+    public function testAllowsManualReseting(): void
+    {
+        // Set expected queries.
+        $queries = [
+            [$this->matchesQuery(<<<SQL
+                SELECT "registration"
+                FROM "airplanes"
+                WHERE "manufacturer" = :manufacturer_UNIQID_SUFFIX
+                SQL)],
+            [$this->matchesQuery(<<<SQL
+                SELECT "model"
+                FROM "airplanes"
+                WHERE "airline" = :airline_UNIQID_SUFFIX
+                SQL)],
+            [$this->matchesQuery(<<<SQL
+                SELECT "model",
+                "registration"
+                FROM "airplanes"
+                WHERE "airline" = :airline_UNIQID_SUFFIX
+                AND "manufacturer" = :manufacturer_UNIQID_SUFFIX
+                SQL)],
+            [$this->matchesQuery(<<<SQL
+                SELECT "id"
+                FROM "airplanes"
+                WHERE "is_active" = :is_active_UNIQID_SUFFIX
+                SQL)],
+        ];
+
+        // Mock connection.
+        $conn_mock = $this->getMockBuilder(Connection::class)
+            ->setConstructorArgs([new DriverFactory(), 'sqlite::memory:'])
+            ->onlyMethods(['getLastId', 'listAssoc', 'listClass', 'query'])
+            ->getMock();
+        $conn_mock
+            ->expects($this->exactly(count($queries)))
+            ->method('query')
+            ->withConsecutive(...$queries);
+        
+        // Create table instance.
+        $table = new Table($conn_mock, 'airplanes');
+
+        // Test with auto reset.
+        $table
+            ->pick('registration')
+            ->filter('manufacturer', '=', 'Airbus')
+            ->selectRecords();
+        
+        // Turn off auto reset.
+        $table->autoReset = false;
+        $table
+            ->pick('model')
+            ->filter('airline', '=', 'Latam')
+            ->selectRecords();
+        $table
+            ->pick('registration')
+            ->filter('manufacturer', '=', 'Airbus')
+            ->selectRecords();
+        
+        // Reset manually.
+        $table
+            ->reset()
+            ->pick('id')
+            ->filter('is_active', '=', 1)
+            ->selectRecords();
+    }
+
+    /**
      * @covers ::__construct
      * @covers ::applyWhereClause
      * @covers ::average
@@ -88,7 +181,9 @@ final class TableTest extends TestCase
      * @uses Laucov\Db\Data\Connection::query
      * @uses Laucov\Db\Data\Connection::quoteIdentifier
      * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
+     * @uses Laucov\Db\Query\Table::autoReset
      * @uses Laucov\Db\Query\Table::insertRecord
+     * @uses Laucov\Db\Query\Table::reset
      * @uses Laucov\Db\Statement\AbstractJoinableStatement::compileFromClause
      * @uses Laucov\Db\Statement\AbstractJoinableStatement::setFromClause
      * @uses Laucov\Db\Statement\AbstractConditionalStatement::setWhereClause
@@ -355,6 +450,19 @@ final class TableTest extends TestCase
                 ->on('l.user_id', '=', 'users.id')
             ->selectColumn('id');
         $this->assertArrayIsLike([2], $actual_r);
+
+        // Test using IN with columns.
+        $table = new Table($this->conn, 'products');
+        $not_in = [
+            'suggested_price_a',
+            'suggested_price_b',
+            'suggested_price_c',
+        ];
+        $actual_s = $table
+            ->pick('code')
+            ->filter('current_price', '!=', $not_in, true)
+            ->selectColumn('code');
+        $this->assertArrayIsLike(['PROD_B', 'PROD_D'], $actual_s);
     }
 
     /**
@@ -367,6 +475,8 @@ final class TableTest extends TestCase
      * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
      * @uses Laucov\Db\Query\Table::__construct
      * @uses Laucov\Db\Query\Table::applyWhereClause
+     * @uses Laucov\Db\Query\Table::autoReset
+     * @uses Laucov\Db\Query\Table::reset
      * @uses Laucov\Db\Query\Table::resetTemporaryProperties
      * @uses Laucov\Db\Statement\AbstractJoinableStatement::compileFromClause
      * @uses Laucov\Db\Statement\AbstractJoinableStatement::setFromClause
@@ -433,6 +543,11 @@ final class TableTest extends TestCase
                 FROM passengers
                 WHERE flights.id = passengers.flight_id) AS "total_passengers"
                 FROM "flights"
+                SQL)],
+            [$this->equalTo(<<<SQL
+                SELECT "code"
+                FROM "products"
+                WHERE "current_price" NOT IN ("suggested_price_a", "suggested_price_b", "suggested_price_c")
                 SQL)],
         ];
 
@@ -512,6 +627,18 @@ final class TableTest extends TestCase
         $table
             ->subquery($subquery, 'total_passengers')
             ->selectRecords();
+        
+        // Test SELECT with columns inside IN operator.
+        $table = new Table($conn_mock, 'products');
+        $not_in = [
+            'suggested_price_a',
+            'suggested_price_b',
+            'suggested_price_c',
+        ];
+        $table
+            ->pick('code')
+            ->filter('current_price', '!=', $not_in, true)
+            ->selectColumn('code');
     }
 
     /**
@@ -578,19 +705,19 @@ final class TableTest extends TestCase
                 )
                 SQL)
             ->query(<<<SQL
+                INSERT INTO "users" ("name", "login", "birth", "gender", "tin", "score")
+                VALUES
+                ('John Doe', 'j.doe', '1988-02-14', 'm', '123456789', 44),
+                ('Michael Scott', 'm.scott', '1965-03-15', 'm', NULL, 25),
+                ('Mary Poppins', 'm.poppins', '1972-12-20', 'f', '987654321', 74)
+                SQL)
+            ->query(<<<SQL
                 CREATE TABLE "logins" (
                     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
                     "user_id" INT(11),
                     "is_successful" INT(1),
                     "attempted_at" DATETIME
                 )
-                SQL)
-            ->query(<<<SQL
-                INSERT INTO "users" ("name", "login", "birth", "gender", "tin", "score")
-                VALUES
-                ('John Doe', 'j.doe', '1988-02-14', 'm', '123456789', 44),
-                ('Michael Scott', 'm.scott', '1965-03-15', 'm', NULL, 25),
-                ('Mary Poppins', 'm.poppins', '1972-12-20', 'f', '987654321', 74)
                 SQL)
             ->query(<<<SQL
                 INSERT INTO "logins" ("user_id", "is_successful", "attempted_at")
@@ -604,6 +731,28 @@ final class TableTest extends TestCase
                 (2, 0, '2024-02-06 04:08:58'),
                 (2, 0, '2024-02-06 04:09:23'),
                 (2, 1, '2024-02-06 09:59:10')
+                SQL)
+            ->query(<<<SQL
+                CREATE TABLE "products" (
+                    "code" VARCHAR(16) PRIMARY KEY,
+                    "current_price" DECIMAL(20, 2),
+                    "suggested_price_a" DECIMAL(20, 2),
+                    "suggested_price_b" DECIMAL(20, 2),
+                    "suggested_price_c" DECIMAL(20, 2)
+                )
+                SQL)
+            ->query(<<<SQL
+                INSERT INTO "products" (
+                    "code",
+                    "current_price",
+                    "suggested_price_a",
+                    "suggested_price_b",
+                    "suggested_price_c"
+                )
+                VALUES ('PROD_A', 2.50, 2.60, 2.50, 2.40),
+                    ('PROD_B', 10.44, 11.52, 11.20, 11.00),
+                    ('PROD_C', 6.54, 7.01, 6.75, 6.54),
+                    ('PROD_D', 3.52, 3.41, 3.33, 3.14)
                 SQL);
 
         // Set records.
