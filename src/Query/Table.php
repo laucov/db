@@ -43,6 +43,11 @@ use Laucov\Db\Statement\UpdateStatement;
 class Table
 {
     /**
+     * Whether to automatically reset this table instance state after querying.
+     */
+    public bool $autoReset = true;
+
+    /**
      * Current array to push the next clause calls data.
      * 
      * @var array<array{string, string[]}>
@@ -194,7 +199,7 @@ class Table
 
         // Execute the statement.
         $this->connection->query($stmt, $this->parameters);
-        $this->resetTemporaryProperties();
+        $this->autoReset();
     }
 
     /**
@@ -414,6 +419,24 @@ class Table
     }
 
     /**
+     * Reset all current columns, conditions and values.
+     */
+    public function reset(): static
+    {
+        $this->groupingColumnName = null;
+        $this->joinClauses = [];
+        $this->limit = null;
+        $this->offset = null;
+        $this->ordering = [];
+        $this->parameters = [];
+        $this->resultColumns = [];
+        $this->values = [];
+        $this->whereClauseCalls = [];
+
+        return $this;
+    }
+
+    /**
      * Run a SELECT query and get the values of a specific column.
      */
     public function selectColumn(string $column_name): array
@@ -476,7 +499,7 @@ class Table
 
         // Execute the statement.
         $this->connection->query($stmt, $this->parameters);
-        $this->resetTemporaryProperties();
+        $this->autoReset();
 
         return $class_name !== null
             ? $this->connection->listClass($class_name)
@@ -567,7 +590,7 @@ class Table
 
         // Execute the statement.
         $this->connection->query($stmt, $this->parameters);
-        $this->resetTemporaryProperties();
+        $this->autoReset();
     }
 
     /**
@@ -757,18 +780,22 @@ class Table
     }
 
     /**
+     * Execute `reset()` if auto reset is on.
+     */
+    protected function autoReset(): void
+    {
+        if ($this->autoReset) {
+            $this->reset();
+        }
+    }
+
+    /**
      * Reset temporary properties to build a new query.
+     * 
+     * @deprecated 2.0.0
      */
     protected function resetTemporaryProperties(): void
     {
-        $this->groupingColumnName = null;
-        $this->joinClauses = [];
-        $this->limit = null;
-        $this->offset = null;
-        $this->ordering = [];
-        $this->parameters = [];
-        $this->resultColumns = [];
-        $this->values = [];
-        $this->whereClauseCalls = [];
+        $this->reset();
     }
 }

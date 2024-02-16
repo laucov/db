@@ -50,6 +50,99 @@ final class TableTest extends TestCase
     protected Table $table;
 
     /**
+     * @covers ::autoReset
+     * @covers ::reset
+     * @uses Laucov\Db\Data\Connection::__construct
+     * @uses Laucov\Db\Data\Connection::query
+     * @uses Laucov\Db\Data\Connection::quoteIdentifier
+     * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
+     * @uses Laucov\Db\Query\Table::__construct
+     * @uses Laucov\Db\Query\Table::applyWhereClause
+     * @uses Laucov\Db\Query\Table::constrain
+     * @uses Laucov\Db\Query\Table::createPlaceholderName
+     * @uses Laucov\Db\Query\Table::filter
+     * @uses Laucov\Db\Query\Table::pick
+     * @uses Laucov\Db\Query\Table::resetTemporaryProperties
+     * @uses Laucov\Db\Query\Table::selectRecords
+     * @uses Laucov\Db\Statement\AbstractConditionalStatement::setWhereClause
+     * @uses Laucov\Db\Statement\AbstractJoinableStatement::compileFromClause
+     * @uses Laucov\Db\Statement\AbstractJoinableStatement::setFromClause
+     * @uses Laucov\Db\Statement\Clause\AbstractConditionalClause::addConstraint
+     * @uses Laucov\Db\Statement\Clause\Constraint::__construct
+     * @uses Laucov\Db\Statement\Clause\Constraint::__toString
+     * @uses Laucov\Db\Statement\Clause\WhereClause::__toString
+     * @uses Laucov\Db\Statement\ResultColumn::__construct
+     * @uses Laucov\Db\Statement\ResultColumn::__toString
+     * @uses Laucov\Db\Statement\SelectStatement::__toString
+     * @uses Laucov\Db\Statement\SelectStatement::addResultColumn
+     */
+    public function testAllowsManualReseting(): void
+    {
+        // Set expected queries.
+        $queries = [
+            [$this->matchesQuery(<<<SQL
+                SELECT "registration"
+                FROM "airplanes"
+                WHERE "manufacturer" = :manufacturer_UNIQID_SUFFIX
+                SQL)],
+            [$this->matchesQuery(<<<SQL
+                SELECT "model"
+                FROM "airplanes"
+                WHERE "airline" = :airline_UNIQID_SUFFIX
+                SQL)],
+            [$this->matchesQuery(<<<SQL
+                SELECT "model",
+                "registration"
+                FROM "airplanes"
+                WHERE "airline" = :airline_UNIQID_SUFFIX
+                AND "manufacturer" = :manufacturer_UNIQID_SUFFIX
+                SQL)],
+            [$this->matchesQuery(<<<SQL
+                SELECT "id"
+                FROM "airplanes"
+                WHERE "is_active" = :is_active_UNIQID_SUFFIX
+                SQL)],
+        ];
+
+        // Mock connection.
+        $conn_mock = $this->getMockBuilder(Connection::class)
+            ->setConstructorArgs([new DriverFactory(), 'sqlite::memory:'])
+            ->onlyMethods(['getLastId', 'listAssoc', 'listClass', 'query'])
+            ->getMock();
+        $conn_mock
+            ->expects($this->exactly(count($queries)))
+            ->method('query')
+            ->withConsecutive(...$queries);
+        
+        // Create table instance.
+        $table = new Table($conn_mock, 'airplanes');
+
+        // Test with auto reset.
+        $table
+            ->pick('registration')
+            ->filter('manufacturer', '=', 'Airbus')
+            ->selectRecords();
+        
+        // Turn off auto reset.
+        $table->autoReset = false;
+        $table
+            ->pick('model')
+            ->filter('airline', '=', 'Latam')
+            ->selectRecords();
+        $table
+            ->pick('registration')
+            ->filter('manufacturer', '=', 'Airbus')
+            ->selectRecords();
+        
+        // Reset manually.
+        $table
+            ->reset()
+            ->pick('id')
+            ->filter('is_active', '=', 1)
+            ->selectRecords();
+    }
+
+    /**
      * @covers ::__construct
      * @covers ::applyWhereClause
      * @covers ::average
@@ -88,7 +181,9 @@ final class TableTest extends TestCase
      * @uses Laucov\Db\Data\Connection::query
      * @uses Laucov\Db\Data\Connection::quoteIdentifier
      * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
+     * @uses Laucov\Db\Query\Table::autoReset
      * @uses Laucov\Db\Query\Table::insertRecord
+     * @uses Laucov\Db\Query\Table::reset
      * @uses Laucov\Db\Statement\AbstractJoinableStatement::compileFromClause
      * @uses Laucov\Db\Statement\AbstractJoinableStatement::setFromClause
      * @uses Laucov\Db\Statement\AbstractConditionalStatement::setWhereClause
@@ -367,6 +462,8 @@ final class TableTest extends TestCase
      * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
      * @uses Laucov\Db\Query\Table::__construct
      * @uses Laucov\Db\Query\Table::applyWhereClause
+     * @uses Laucov\Db\Query\Table::autoReset
+     * @uses Laucov\Db\Query\Table::reset
      * @uses Laucov\Db\Query\Table::resetTemporaryProperties
      * @uses Laucov\Db\Statement\AbstractJoinableStatement::compileFromClause
      * @uses Laucov\Db\Statement\AbstractJoinableStatement::setFromClause
