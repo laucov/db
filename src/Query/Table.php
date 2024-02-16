@@ -797,6 +797,7 @@ class Table
     /**
      * Reset temporary properties to build a new query.
      * 
+     * @codeCoverageIgnore
      * @deprecated 2.0.0
      */
     protected function resetTemporaryProperties(): void
