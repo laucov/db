@@ -316,6 +316,12 @@ class Table
      */
     public function insertRecords(array ...$list): string
     {
+        // Check if the list is empty.
+        if (count($list) < 1) {
+            $message = 'There are no records to insert.';
+            throw new \InvalidArgumentException($message);
+        }
+
         // Get identifiers.
         $table_name = $this->connection->quoteIdentifier($this->tableName);
         $columns = array_map(
