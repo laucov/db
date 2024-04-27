@@ -528,6 +528,19 @@ final class TableTest extends TestCase
     }
 
     /**
+     * @covers ::insertRecords
+     * @uses Laucov\Db\Data\Connection::__construct
+     * @uses Laucov\Db\Data\Connection::query
+     * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
+     * @uses Laucov\Db\Query\Table::__construct
+     */
+    public function testMustInsertAtLeastOneRecord(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->table->insertRecords();
+    }
+
+    /**
      * @coversNothing
      */
     public function testQuotesIdentifiers(): void
