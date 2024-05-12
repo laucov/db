@@ -50,6 +50,30 @@ final class TableTest extends TestCase
     protected Table $table;
 
     /**
+     * Provides batch inserts that should fail in `::insertRecords`.
+     */
+    public function invalidBatchInsertProvider(): array
+    {
+        return [
+            [[], \InvalidArgumentException::class],
+            [
+                [
+                    ['name' => 'James Foobar', 'login' => 'mr.foobar'],
+                    ['name' => 'Jane Barbaz'],
+                ],
+                \RuntimeException::class,
+            ],
+            [
+                [
+                    ['name' => 'Jane Barbaz'],
+                    ['name' => 'James Foobar', 'login' => 'mr.foobar'],
+                ],
+                \RuntimeException::class,
+            ],
+        ];
+    }
+
+    /**
      * @covers ::autoReset
      * @covers ::countRecords
      * @covers ::reset
@@ -528,19 +552,6 @@ final class TableTest extends TestCase
     }
 
     /**
-     * @covers ::insertRecords
-     * @uses Laucov\Db\Data\Connection::__construct
-     * @uses Laucov\Db\Data\Connection::query
-     * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
-     * @uses Laucov\Db\Query\Table::__construct
-     */
-    public function testMustInsertAtLeastOneRecord(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->table->insertRecords();
-    }
-
-    /**
      * @coversNothing
      */
     public function testQuotesIdentifiers(): void
@@ -682,6 +693,26 @@ final class TableTest extends TestCase
             ->pick('code')
             ->filter('current_price', '!=', $not_in, true)
             ->selectColumn('code');
+    }
+
+    /**
+     * @covers ::insertRecords
+     * @uses Laucov\Db\Data\Connection::__construct
+     * @uses Laucov\Db\Data\Connection::query
+     * @uses Laucov\Db\Data\Connection::quoteIdentifier
+     * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
+     * @uses Laucov\Db\Query\Table::__construct
+     * @uses Laucov\Db\Statement\InsertStatement::__construct
+     * @uses Laucov\Db\Statement\InsertStatement::addRowValues
+     * @uses Laucov\Db\Statement\InsertStatement::setColumns
+     * @dataProvider invalidBatchInsertProvider
+     */
+    public function testValidatesBatchInserts(
+        array $records,
+        string $expect_exception
+    ): void {
+        $this->expectException($expect_exception);
+        $this->table->insertRecords(...$records);
     }
 
     /**

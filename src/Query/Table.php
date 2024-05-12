@@ -313,21 +313,21 @@ class Table
 
     /**
      * Insert one or more records using a list of associative arrays.
+     * 
+     * All records must contain the first record's columns.
      */
-    public function insertRecords(array ...$list): string
+    public function insertRecords(array ...$records): string
     {
         // Check if the list is empty.
-        if (count($list) < 1) {
+        if (count($records) < 1) {
             $message = 'There are no records to insert.';
             throw new \InvalidArgumentException($message);
         }
 
         // Get identifiers.
         $table_name = $this->connection->quoteIdentifier($this->tableName);
-        $columns = array_map(
-            [$this->connection, 'quoteIdentifier'],
-            array_keys($list[0]),
-        );
+        $keys = array_keys($records[0]);
+        $columns = array_map([$this->connection, 'quoteIdentifier'], $keys);
 
         // Create statement.
         $stmt = new InsertStatement($table_name);
@@ -335,13 +335,28 @@ class Table
         
         // Set rows.
         $parameters = [];
-        foreach ($list as $i => $values) {
-            // Add parameters.
-            $keys = array_map(fn ($k) => "{$k}_{$i}", array_keys($values));
-            $values = array_combine($keys, array_values($values));
-            $parameters = array_merge($parameters, $values);
-            // Add values to statement.
-            $placeholders = array_map(fn (string $k) => ":{$k}", $keys);
+        foreach ($records as $i => $values) {
+            // Set columns.
+            $placeholders = [];
+            foreach ($keys as $key) {
+                // Get value.
+                if (!array_key_exists($key, $values)) {
+                    $message = 'Defined column "%s" is missing in record #%s.';
+                    throw new \RuntimeException(sprintf($message, $key, $i));
+                }
+                $value = $values[$key];
+                unset($values[$key]);
+                // Set parameter and placeholder.
+                $parameters["{$key}_{$i}"] = $value;
+                $placeholders[] = ":{$key}_{$i}";
+            }
+            // Check unexpected values.
+            if (count($values) > 0) {
+                $keys = implode(', ', array_keys($values));
+                $message = 'Unexpected columns (%s) found in record #%s.';
+                throw new \RuntimeException(sprintf($message, $keys, $i));
+            }
+            // Add row using placeholders.
             $stmt->addRowValues(...$placeholders);
         }
 
