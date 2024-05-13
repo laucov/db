@@ -70,7 +70,7 @@ class Table
      * Maximum number of records to retrieve in the next SELECT query.
      */
     protected null|int $limit = null;
-    
+
     /**
      * Number of records to skip in the next SELECT query.
      */
@@ -186,7 +186,13 @@ class Table
         $stmt = new SelectStatement();
 
         // Create count key.
-        $key = $column_alias ?? $column_name;
+        if ($column_alias === null) {
+            $dot_pos = strpos($column_name, '.');
+            $offset = $dot_pos === false ? 0 : $dot_pos + 1;
+            $key = substr($column_name, $offset);
+        } else {
+            $key = $column_alias;
+        }
 
         // Quote identifiers and add column.
         $column_name = $this->connection->quoteIdentifier($column_name);
@@ -302,7 +308,7 @@ class Table
         $stmt
             ->setColumns(...$columns)
             ->addRowValues(...$placeholders);
-        
+
         // Set parameters.
         $parameters = array_combine($placeholders, array_values($values));
 
@@ -332,7 +338,7 @@ class Table
         // Create statement.
         $stmt = new InsertStatement($table_name);
         $stmt->setColumns(...$columns);
-        
+
         // Set rows.
         $parameters = [];
         foreach ($records as $i => $values) {
@@ -562,7 +568,7 @@ class Table
     {
         $alias = $this->connection->quoteIdentifier($alias);
         $this->resultColumns[] = ["({$statement})", $alias];
-        
+
         return $this;
     }
 
@@ -733,7 +739,7 @@ class Table
                     $where_operator = $operator->value;
                 }
                 break;
-            // Handle custom operators.
+                // Handle custom operators.
             case FilterOperator::STARTS_WITH:
             case FilterOperator::DOES_NOT_START_WITH:
             case FilterOperator::ENDS_WITH:

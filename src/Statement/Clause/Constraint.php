@@ -66,7 +66,8 @@ class Constraint implements \Stringable
          * Number of constraint groups to close.
          */
         public int $endGroups = 0,
-    ) {}
+    ) {
+    }
 
     /**
      * Get the constraint string representation.

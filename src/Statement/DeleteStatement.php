@@ -69,7 +69,7 @@ class DeleteStatement extends AbstractConditionalStatement
         if ($this->whereClause !== null) {
             $statement .= "\n{$this->whereClause}";
         }
-        
+
         return $statement;
     }
 }

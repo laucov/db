@@ -35,7 +35,7 @@ use Laucov\Db\Data\Driver\DriverFactory;
 use Laucov\Db\Query\Schema;
 use Laucov\Db\Statement\ColumnDefinition;
 use Tests\AbstractArrayTest;
- 
+
 /**
  * @coversDefaultClass \Laucov\Db\Query\Schema
  */
@@ -92,7 +92,7 @@ class SchemaTest extends AbstractArrayTest
                 'useless_table',
                 new ColumnDefinition('useless_column', 'VARCHAR', 1),
             );
-        
+
         // Check tables.
         $this->assertArrayIsLike(
             ['sales', 'useless_table'],
@@ -110,7 +110,7 @@ class SchemaTest extends AbstractArrayTest
                 (5, 652.44, 0.00),
                 (4, 89.66, 10.00)
             SQL);
-        
+
         // Test inserted records.
         $expected_a = [
             [1, 2, 200.01, 0],
@@ -130,7 +130,7 @@ class SchemaTest extends AbstractArrayTest
             ->dropTable('useless_table')
             ->dropTable('inexistent_table', true)
             ->renameTable('sales', 'orders');
-        
+
         // Check tables.
         $this->assertArrayIsLike(
             ['orders'],
@@ -147,14 +147,14 @@ class SchemaTest extends AbstractArrayTest
         $conn->query(<<<SQL
             UPDATE orders SET employee_id = 2 WHERE 1
             SQL);
-        
+
         // Check updated records.
         $expected_b = [[2], [2], [2], [2], [2], [2]];
         $actual_b = $conn
             ->query("SELECT employee_id FROM orders")
             ->listNum();
         $this->assertArrayIsLike($expected_b, $actual_b);
-        
+
         // Modify columns.
         $schema
             ->dropColumn('orders', 'discount')
@@ -165,7 +165,7 @@ class SchemaTest extends AbstractArrayTest
                 'amount',
                 new ColumnDefinition('amount', 'DECIMAL', 20, decimals: 1),
             );
-        
+
         // Check new structure.
         $expected_c = [[
             'id' => 3,
@@ -205,7 +205,7 @@ class SchemaTest extends AbstractArrayTest
             is_active INT(1)
             )
             SQL);
-        
+
         // Get column names.
         $schema = new Schema($conn);
         $expected = ['id', 'name', 'email', 'password_hash', 'is_active'];
@@ -252,7 +252,7 @@ class SchemaTest extends AbstractArrayTest
                     )
                     SQL
             );
-        
+
         // Get table names.
         $schema = new Schema($conn);
         $expected = ['donations', 'users'];
@@ -314,7 +314,7 @@ class SchemaTest extends AbstractArrayTest
             ->expects($this->exactly(count($queries)))
             ->method('query')
             ->withConsecutive(...$queries);
-        
+
         // Create schema instance.
         $schema = new Schema($conn_mock);
 

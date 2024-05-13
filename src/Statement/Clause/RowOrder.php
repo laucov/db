@@ -46,7 +46,8 @@ class RowOrder implements \Stringable
          * Order option.
          */
         public readonly OrderDirection $direction,
-    ) {}
+    ) {
+    }
 
     /**
      * Get the row order string representation.

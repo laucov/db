@@ -35,7 +35,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \Laucov\Db\Statement\DropTableStatement
- */ 
+ */
 class DropTableStatementTest extends TestCase
 {
     /**

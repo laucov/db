@@ -64,7 +64,7 @@ class JoinClause extends AbstractConditionalClause implements \Stringable
             {$this->operator->value} JOIN {$target}
             ON {$constraints}
             SQL;
-        
+
         return $clause;
     }
 

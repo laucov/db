@@ -53,7 +53,8 @@ class UpdateStatement extends AbstractConditionalStatement
          * Table alias.
          */
         protected null|string $tableAlias = null,
-    ) {}
+    ) {
+    }
 
     /**
      * Get the UPDATE statement string representation.

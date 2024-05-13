@@ -44,7 +44,7 @@ abstract class AbstractJoinableStatement extends AbstractConditionalStatement
      * Source alias.
      */
     protected null|string $fromAlias = null;
-    
+
     /**
      * Registered JOIN clauses.
      * 

@@ -33,7 +33,7 @@ namespace Tests\Data;
 use Laucov\Db\Data\Driver\DriverFactory;
 use Laucov\Db\Data\Driver\AbstractDriver;
 use PHPUnit\Framework\TestCase;
- 
+
 /**
  * @coversDefaultClass \Laucov\Db\Data\Driver\DriverFactory
  */

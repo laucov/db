@@ -33,7 +33,6 @@ namespace Laucov\Db\Statement\Clause;
  */
 class WhereClause extends AbstractConditionalClause implements \Stringable
 {
-
     /**
      * Get the WHERE clause string representation.
      */
@@ -43,7 +42,7 @@ class WhereClause extends AbstractConditionalClause implements \Stringable
         $constraints = count($this->constraints) > 0
             ? implode("\n", $this->constraints)
             : '1';
-        
+
         return "WHERE {$constraints}";
     }
 }

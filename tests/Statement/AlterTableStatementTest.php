@@ -36,7 +36,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \Laucov\Db\Statement\AlterTableStatement
- */ 
+ */
 class AlterTableStatementTest extends TestCase
 {
     /**
@@ -60,7 +60,7 @@ class AlterTableStatementTest extends TestCase
             RENAME TO bazbaz
             SQL;
         $this->assertSame($expected_a, (string) $stmt->renameTable('bazbaz'));
-        
+
         // Test renaming a column.
         $expected_b = <<<SQL
             ALTER TABLE foobar
