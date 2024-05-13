@@ -312,7 +312,8 @@ final class TableTest extends TestCase
         // Test counting records.
         $actual_e = $this->table->countRecords('id');
         $this->assertSame(3, $actual_e);
-        $actual_f = $this->table->countRecords('tin');
+        // Test alias table name removal.
+        $actual_f = $this->table->countRecords('users.tin');
         $this->assertSame(2, $actual_f);
 
         // Test grouping.

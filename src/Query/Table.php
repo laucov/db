@@ -186,7 +186,13 @@ class Table
         $stmt = new SelectStatement();
 
         // Create count key.
-        $key = $column_alias ?? $column_name;
+        if ($column_alias === null) {
+            $dot_pos = strpos($column_name, '.');
+            $offset = $dot_pos === false ? 0 : $dot_pos + 1;
+            $key = substr($column_name, $offset);
+        } else {
+            $key = $column_alias;
+        }
 
         // Quote identifiers and add column.
         $column_name = $this->connection->quoteIdentifier($column_name);
