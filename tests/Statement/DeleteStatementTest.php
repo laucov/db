@@ -33,7 +33,7 @@ namespace Tests\Statement;
 use Laucov\Db\Statement\Clause\WhereClause;
 use Laucov\Db\Statement\DeleteStatement;
 use PHPUnit\Framework\TestCase;
- 
+
 /**
  * @coversDefaultClass \Laucov\Db\Statement\DeleteStatement
  */
@@ -54,7 +54,7 @@ class DeleteStatementTest extends TestCase
         $expected_a = <<<SQL
             DELETE FROM messages
             SQL;
-        
+
         // Build.
         $actual_a = (string) new DeleteStatement('messages');
 
@@ -66,13 +66,13 @@ class DeleteStatementTest extends TestCase
             DELETE FROM users AS u
             WHERE u.is_active = 0
             SQL;
-        
+
         // Build.
         $actual_b = (string) (new DeleteStatement('users', 'u'))
             ->setWhereClause(function (WhereClause $clause): void {
                 $clause->addConstraint('u.is_active', '=', 0);
             });
-        
+
         // Compare.
         $this->assertSame($expected_b, $actual_b);
     }

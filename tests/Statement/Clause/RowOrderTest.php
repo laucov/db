@@ -33,7 +33,7 @@ namespace Tests\Statement\Clause;
 use Laucov\Db\Statement\Clause\OrderDirection;
 use Laucov\Db\Statement\Clause\RowOrder;
 use PHPUnit\Framework\TestCase;
- 
+
 /**
  * @coversDefaultClass \Laucov\Db\Statement\Clause\RowOrder
  */

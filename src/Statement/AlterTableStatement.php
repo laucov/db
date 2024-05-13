@@ -125,7 +125,7 @@ class AlterTableStatement implements StatementInterface
      */
     public function renameColumn(string $column_name, string $new_name): static
     {
-        $this->change = TableChange::RENAME_COLUMN;;
+        $this->change = TableChange::RENAME_COLUMN;
         $this->column = $column_name;
         $this->newColumnName = $new_name;
 

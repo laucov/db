@@ -34,7 +34,7 @@ use Laucov\Db\Statement\Clause\JoinClause;
 use Laucov\Db\Statement\Clause\WhereClause;
 use Laucov\Db\Statement\SelectStatement;
 use PHPUnit\Framework\TestCase;
- 
+
 /**
  * @coversDefaultClass \Laucov\Db\Statement\SelectStatement
  */
@@ -72,7 +72,7 @@ class SelectStatementTest extends TestCase
             FULL JOIN customers
             ON customers.id = cars.customer_id
             SQL;
-        
+
         // Build.
         $actual_a =  (string) (new SelectStatement())
             ->setFromClause('cars')
@@ -81,10 +81,10 @@ class SelectStatementTest extends TestCase
                     ->setOn('FULL', 'customers')
                     ->addConstraint('customers.id', '=', 'cars.customer_id');
             });
-        
+
         // Compare.
         $this->assertSame($expected_a, $actual_a);
-        
+
         // Test a complex query.
         $expected_b = <<<SQL
             SELECT model,
@@ -101,7 +101,7 @@ class SelectStatementTest extends TestCase
             LIMIT 100
             OFFSET 200
             SQL;
-        
+
         // Build.
         $actual_b = (string) (new SelectStatement())
             ->addResultColumn('model')
@@ -125,7 +125,7 @@ class SelectStatementTest extends TestCase
             ->orderRows('c.id', 'DESC')
             ->setLimit(100)
             ->setOffset(200);
-        
+
         // Compare.
         $this->assertSame($expected_b, $actual_b);
 
@@ -133,11 +133,11 @@ class SelectStatementTest extends TestCase
         $expected_c = <<<SQL
             SELECT 'Hello, World!' AS msg
             SQL;
-        
+
         // Build.
         $actual_c = (string) (new SelectStatement())
             ->addResultColumn("'Hello, World!'", 'msg');
-        
+
         // Compare.
         $this->assertSame($expected_c, $actual_c);
     }

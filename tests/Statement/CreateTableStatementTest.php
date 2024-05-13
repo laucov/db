@@ -34,7 +34,7 @@ use Laucov\Db\Statement\ColumnDefinition;
 use Laucov\Db\Statement\CreateTableStatement;
 use Laucov\Db\Statement\SelectStatement;
 use PHPUnit\Framework\TestCase;
- 
+
 /**
  * @coversDefaultClass \Laucov\Db\Statement\CreateTableStatement
  */
@@ -67,7 +67,7 @@ class CreateTableStatementTest extends TestCase
             read_at DATETIME
             )
             SQL;
-        
+
         // Build.
         $actual_a = (string) (new CreateTableStatement('messages'))
             ->addColumns(
@@ -89,7 +89,7 @@ class CreateTableStatementTest extends TestCase
             AS SELECT *
             FROM messages
             SQL;
-        
+
         // Build.
         $select_stmt = (new SelectStatement())->setFromClause('messages');
         $statement_b = new CreateTableStatement('messages_backup', true, true);
@@ -109,7 +109,7 @@ class CreateTableStatementTest extends TestCase
             new ColumnDefinition('content', 'VARCHAR', 128),
         );
         $this->assertSame($expected_c, $actual_c);
-        
+
         // Test replacing the SELECT statement.
         $expected_d = <<<SQL
             CREATE TEMPORARY TABLE IF NOT EXISTS messages_backup

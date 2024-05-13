@@ -37,7 +37,7 @@ use Laucov\Db\Statement\Clause\WhereClause;
 use Laucov\Db\Statement\SelectStatement;
 use PHPUnit\Framework\Constraint\RegularExpression;
 use PHPUnit\Framework\TestCase;
- 
+
 /**
  * @coversDefaultClass \Laucov\Db\Query\Table
  */
@@ -162,7 +162,7 @@ final class TableTest extends TestCase
                 ['id' => 0],
                 ['count_alias' => 0],
             );
-        
+
         // Create table instance.
         $table = new Table($conn_mock, 'airplanes');
 
@@ -171,7 +171,7 @@ final class TableTest extends TestCase
             ->pick('registration')
             ->filter('manufacturer', '=', 'Airbus')
             ->selectRecords();
-        
+
         // Turn off auto reset.
         $table->autoReset = false;
         $table
@@ -184,7 +184,7 @@ final class TableTest extends TestCase
             ->pick('registration')
             ->filter('manufacturer', '=', 'Airbus')
             ->selectRecords();
-        
+
         // Reset manually.
         $table
             ->reset()
@@ -295,7 +295,7 @@ final class TableTest extends TestCase
         // Test calculation columns.
         $expected_d = [[
             'count' => 3,
-            'average' => 143/3,
+            'average' => 143 / 3,
             'sum' => 143,
             'max' => 74,
             'min' => 25,
@@ -615,7 +615,7 @@ final class TableTest extends TestCase
             ->expects($this->exactly(count($queries)))
             ->method('query')
             ->withConsecutive(...$queries);
-        
+
         // Create table instance.
         $table = new Table($conn_mock, 'flights');
 
@@ -648,7 +648,7 @@ final class TableTest extends TestCase
             ->updateRecords([
                 'is_late' => 0,
             ]);
-        
+
         // Test SELECT and constraints.
         $table
             ->pick('aircrafts.registration')
@@ -664,12 +664,12 @@ final class TableTest extends TestCase
             ->sort('aircraft')
             ->group('aircraft')
             ->selectRecords();
-        
+
         // Test DELETE.
         $table
             ->filter("archived_at", '<', '2023-01-01 00:00:00')
             ->deleteRecords();
-        
+
         // Test SELECT with subquery.
         // Note: this is a bad subquery example that
         // could be easily replaced by a JOIN clause.
@@ -682,7 +682,7 @@ final class TableTest extends TestCase
         $table
             ->subquery($subquery, 'total_passengers')
             ->selectRecords();
-        
+
         // Test SELECT with columns inside IN operator.
         $table = new Table($conn_mock, 'products');
         $not_in = [

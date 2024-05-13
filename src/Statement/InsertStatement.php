@@ -67,7 +67,8 @@ class InsertStatement implements StatementInterface
          * Table alias.
          */
         protected null|string $tableAlias = null,
-    ) {}
+    ) {
+    }
 
     /**
      * Get the INSERT statement string representation.
@@ -78,7 +79,7 @@ class InsertStatement implements StatementInterface
         $statement = $this->tableAlias !== null
             ? "INSERT INTO {$this->tableName} AS {$this->tableAlias}"
             : "INSERT INTO {$this->tableName}";
-        
+
         // Define columns.
         if (count($this->columns) > 0) {
             $statement .= ' (' . implode(', ', $this->columns) . ')';

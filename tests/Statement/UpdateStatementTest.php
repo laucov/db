@@ -30,11 +30,10 @@ declare(strict_types=1);
 
 namespace Tests\Statement;
 
-use Laucov\Db\Statement\Clause\JoinClause;
 use Laucov\Db\Statement\Clause\WhereClause;
 use Laucov\Db\Statement\UpdateStatement;
 use PHPUnit\Framework\TestCase;
- 
+
 /**
  * @coversDefaultClass \Laucov\Db\Statement\UpdateStatement
  */
@@ -57,7 +56,7 @@ class UpdateStatementTest extends TestCase
             UPDATE messages AS m
             SET read_at = '2024-03-04 14:48:32'
             SQL;
-        
+
         // Build.
         $actual_a = (string) (new UpdateStatement('messages', 'm'))
             ->setValue('read_at', "'2024-03-04 14:48:32'");
@@ -71,7 +70,7 @@ class UpdateStatementTest extends TestCase
             SET total_amount = NULL, canceled_at = '2024-02-04 13:19'
             WHERE paid_at IS NULL
             SQL;
-        
+
         // Build.
         $actual_b = (string) (new UpdateStatement('orders'))
             ->setValue('total_amount', 'NULL')
@@ -79,7 +78,7 @@ class UpdateStatementTest extends TestCase
             ->setWhereClause(function (WhereClause $clause): void {
                 $clause->addConstraint('paid_at', 'IS NULL');
             });
-        
+
         // Compare.
         $this->assertSame($expected_b, $actual_b);
     }

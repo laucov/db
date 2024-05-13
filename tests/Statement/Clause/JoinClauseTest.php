@@ -32,7 +32,7 @@ namespace Tests\Statement\Clause;
 
 use Laucov\Db\Statement\Clause\JoinClause;
 use PHPUnit\Framework\TestCase;
- 
+
 /**
  * @coversDefaultClass \Laucov\Db\Statement\Clause\JoinClause
  */
@@ -57,7 +57,7 @@ class JoinClauseTest extends TestCase
             LEFT JOIN customers
             ON customers.id = cars.customer_id
             SQL, (string) $clause_a);
-        
+
         // Test joining with alias.
         $clause_b = new JoinClause();
         $clause_b

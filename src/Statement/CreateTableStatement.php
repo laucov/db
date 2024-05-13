@@ -72,7 +72,8 @@ class CreateTableStatement implements StatementInterface
          * Whether the table is temporary.
          */
         protected bool $isTemporary = false,
-    ) {}
+    ) {
+    }
 
     /**
      * Get the CREATE TABLE statement string representation.

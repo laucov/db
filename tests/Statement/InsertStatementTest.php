@@ -67,13 +67,13 @@ class InsertStatementTest extends TestCase
             ('Foobar', 'purple', 8.78),
             ('Bazbaz', 'gray', 1.42)
             SQL;
-        
+
         // Build.
         $actual_a = (string) (new InsertStatement('products', 'p'))
             ->setColumns('descr', 'color', 'price')
             ->addRowValues("'Foobar'", "'purple'", '8.78')
             ->addRowValues("'Bazbaz'", "'gray'", '1.42');
-        
+
         // Compare.
         $this->assertSame($expected_a, $actual_a);
 
@@ -86,7 +86,7 @@ class InsertStatementTest extends TestCase
             FROM products
             WHERE 1)
             SQL;
-        
+
         // Build.
         $select_stmt = (new SelectStatement())
             ->addResultColumn('descr')
@@ -98,7 +98,7 @@ class InsertStatementTest extends TestCase
             });
         $stmt_b = (new InsertStatement('products_backup'))
             ->setSelectStatement($select_stmt);
-        
+
         // Compare.
         $this->assertSame($expected_b, (string) $stmt_b);
 

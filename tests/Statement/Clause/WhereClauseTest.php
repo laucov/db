@@ -32,7 +32,7 @@ namespace Tests\Statement\Clause;
 
 use Laucov\Db\Statement\Clause\WhereClause;
 use PHPUnit\Framework\TestCase;
- 
+
 /**
  * @coversDefaultClass \Laucov\Db\Statement\Clause\WhereClause
  */
@@ -67,7 +67,7 @@ class WhereClauseTest extends TestCase
             OR age >= 16
             AND is_emancipated = 1
             SQL, (string) $clause_a);
-        
+
         // Test manual "WHERE 1".
         $clause_b = new WhereClause();
         $clause_b->addConstraint('1');

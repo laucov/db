@@ -32,7 +32,7 @@ namespace Tests\Statement;
 
 use Laucov\Db\Statement\ColumnDefinition;
 use PHPUnit\Framework\TestCase;
- 
+
 /**
  * @coversDefaultClass \Laucov\Db\Statement\ColumnDefinition
  */

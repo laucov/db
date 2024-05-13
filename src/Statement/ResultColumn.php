@@ -51,7 +51,8 @@ class ResultColumn implements \Stringable
          * Column alias.
          */
         public readonly null|string $alias,
-    ) {}
+    ) {
+    }
 
     /**
      * Get the result column string representation.

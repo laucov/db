@@ -67,7 +67,7 @@ class AbstractConditionalClause
         $logical_operator = count($this->constraints) > 0
             ? $this->logicalOperator
             : null;
-        
+
         // Add the constraint object.
         $this->constraints[] = new Constraint(
             $logical_operator,

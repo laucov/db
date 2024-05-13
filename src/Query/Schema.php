@@ -80,7 +80,7 @@ class Schema
             UPDATE {$quoted_table_name}
             SET {$quoted_temp_name} = {$quoted_column_name}
             SQL);
-        
+
         // Replace the old column.
         $this->dropColumn($table_name, $column_name);
         $this->renameColumn($table_name, $temp_name, $final_name);

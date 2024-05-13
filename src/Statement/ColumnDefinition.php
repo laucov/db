@@ -78,7 +78,7 @@ class ColumnDefinition implements \Stringable
         protected bool $isAi = false,
     ) {
     }
-    
+
     /**
      * Get the column definition string representation.
      */
@@ -86,7 +86,7 @@ class ColumnDefinition implements \Stringable
     {
         // Initialize definition.
         $def = "{$this->name} {$this->type}";
-        
+
         // Add type length.
         if ($this->length !== null) {
             $def .= $this->decimals !== null

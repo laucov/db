@@ -34,7 +34,7 @@ use Laucov\Db\Statement\Clause\ComparisonOperator;
 use Laucov\Db\Statement\Clause\Constraint;
 use Laucov\Db\Statement\Clause\LogicalOperator;
 use PHPUnit\Framework\TestCase;
- 
+
 /**
  * @coversDefaultClass \Laucov\Db\Statement\Clause\Constraint
  */

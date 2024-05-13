@@ -34,7 +34,7 @@ use Laucov\Db\Data\Connection;
 use Laucov\Db\Data\Driver\AbstractDriver;
 use Laucov\Db\Data\Driver\DriverFactory;
 use PHPUnit\Framework\TestCase;
- 
+
 /**
  * @coversDefaultClass \Laucov\Db\Data\Connection
  */
@@ -227,5 +227,6 @@ class ExampleEntity
     public int $id;
     public string $last_name;
     public function __construct(public bool $hasArgs = false)
-    {}
+    {
+    }
 }
