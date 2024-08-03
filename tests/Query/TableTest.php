@@ -553,6 +553,50 @@ final class TableTest extends TestCase
     }
 
     /**
+     * @covers ::countRecords
+     * @uses Laucov\Db\Data\Connection::__construct
+     * @uses Laucov\Db\Data\Connection::fetchAssoc
+     * @uses Laucov\Db\Data\Connection::getStatement
+     * @uses Laucov\Db\Data\Connection::query
+     * @uses Laucov\Db\Data\Connection::quoteIdentifier
+     * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
+     * @uses Laucov\Db\Query\Table::__construct
+     * @uses Laucov\Db\Query\Table::applySelectStatementClauses
+     * @uses Laucov\Db\Query\Table::applyWhereClause
+     * @uses Laucov\Db\Query\Table::autoReset
+     * @uses Laucov\Db\Query\Table::constrain
+     * @uses Laucov\Db\Query\Table::createPlaceholderName
+     * @uses Laucov\Db\Query\Table::filter
+     * @uses Laucov\Db\Query\Table::group
+     * @uses Laucov\Db\Query\Table::reset
+     * @uses Laucov\Db\Statement\AbstractConditionalStatement::setWhereClause
+     * @uses Laucov\Db\Statement\AbstractJoinableStatement::compileFromClause
+     * @uses Laucov\Db\Statement\AbstractJoinableStatement::setFromClause
+     * @uses Laucov\Db\Statement\Clause\AbstractConditionalClause::addConstraint
+     * @uses Laucov\Db\Statement\Clause\Constraint::__construct
+     * @uses Laucov\Db\Statement\Clause\Constraint::__toString
+     * @uses Laucov\Db\Statement\Clause\WhereClause::__toString
+     * @uses Laucov\Db\Statement\ResultColumn::__construct
+     * @uses Laucov\Db\Statement\ResultColumn::__toString
+     * @uses Laucov\Db\Statement\SelectStatement::__toString
+     * @uses Laucov\Db\Statement\SelectStatement::addResultColumn
+     * @uses Laucov\Db\Statement\SelectStatement::groupRows
+     */
+    public function testCanCountWithoutRows(): void
+    {
+        $count = $this->table
+            ->filter('name', '=', 'Mary Poppins')
+            ->group('id')
+            ->countRecords('id', 'id');
+        $this->assertSame(1, $count);
+        $count = $this->table
+            ->filter('name', '=', 'Mary Doe')
+            ->group('id')
+            ->countRecords('id', 'id');
+        $this->assertSame(0, $count);
+    }
+
+    /**
      * @coversNothing
      */
     public function testQuotesIdentifiers(): void

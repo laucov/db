@@ -214,7 +214,10 @@ class Table
         $this->connection->query($stmt, $this->parameters);
         $this->autoReset();
 
-        return $this->connection->fetchAssoc()[$key];
+        // Get row.
+        $row = $this->connection->fetchAssoc();
+
+        return $row !== null ? $row[$key] : 0;
     }
 
     /**
@@ -631,6 +634,8 @@ class Table
                 [$operator, $table, $alias, $calls] = $j;
                 $clause->setOn($operator, $table, $alias);
                 foreach ($calls as [$method, $arguments]) {
+                    /** @var string $method */
+                    /** @var array<string> $arguments */
                     call_user_func_array([$clause, $method], $arguments);
                 }
             });

@@ -79,9 +79,10 @@ class Connection
      * 
      * @return array<string, mixed>
      */
-    public function fetchAssoc(): array
+    public function fetchAssoc(): null|array
     {
-        return $this->getStatement()->fetch(\PDO::FETCH_ASSOC);
+        $row = $this->getStatement()->fetch(\PDO::FETCH_ASSOC);
+        return is_array($row) ? $row : null;
     }
 
     /**
@@ -95,7 +96,8 @@ class Connection
     {
         $statement = $this->getStatement();
         $statement->setFetchMode(\PDO::FETCH_CLASS, $class_name);
-        return $statement->fetch();
+        $row = $statement->fetch();
+        return is_object($row) ? $row : null;
     }
 
     /**
@@ -109,7 +111,8 @@ class Connection
     {
         $statement = $this->getStatement();
         $statement->setFetchMode(\PDO::FETCH_INTO, $object);
-        return $statement->fetch();
+        $row = $statement->fetch();
+        return is_object($row) ? $row : null;
     }
 
     /**
@@ -117,10 +120,10 @@ class Connection
      * 
      * @return array<string, mixed>
      */
-    public function fetchNum(): array
+    public function fetchNum(): null|array
     {
-        $statement = $this->getStatement();
-        return $statement->fetch(\PDO::FETCH_NUM);
+        $row = $this->getStatement()->fetch(\PDO::FETCH_NUM);
+        return is_array($row) ? $row : null;
     }
 
     /**
