@@ -73,7 +73,7 @@ class ConnectionFactoryTest extends TestCase
         $this->factory
             ->setConnection('conn_1', $dsn)
             ->setConnection('conn_2', $dsn, $user, $pass, $opts);
-        
+
         // Get the default connection name.
         $actual = $this->factory->getDefaultConnection();
         $this->assertSame('conn_1', $actual);
@@ -118,7 +118,7 @@ class ConnectionFactoryTest extends TestCase
         $this->factory
             ->setConnection('conn_1', 'sqlite::memory:')
             ->setConnection('conn_2', 'sqlite::memory:');
-        
+
         // Create schema objects.
         $schema_1 = $this->factory->getSchema();
         $this->assertInstanceOf(Schema::class, $schema_1);
@@ -148,7 +148,7 @@ class ConnectionFactoryTest extends TestCase
         $this->factory
             ->setConnection('conn_1', 'sqlite::memory:')
             ->setConnection('conn_2', 'sqlite::memory:');
-        
+
         // Create instances.
         $table_1 = $this->factory->getTable('users');
         $this->assertInstanceOf(Table::class, $table_1);
