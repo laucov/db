@@ -214,7 +214,10 @@ class Table
         $this->connection->query($stmt, $this->parameters);
         $this->autoReset();
 
-        return $this->connection->fetchAssoc()[$key];
+        // Get row.
+        $row = $this->connection->fetchAssoc();
+
+        return $row !== null ? $row[$key] : 0;
     }
 
     /**
