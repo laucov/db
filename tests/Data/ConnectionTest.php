@@ -190,6 +190,53 @@ class ConnectionTest extends TestCase
     }
 
     /**
+     * @covers ::fetchAssoc
+     * @covers ::fetchClass
+     * @covers ::fetchInto
+     * @covers ::fetchNum
+     * @uses Laucov\Db\Data\Connection::__construct
+     * @uses Laucov\Db\Data\Connection::getStatement
+     * @uses Laucov\Db\Data\Connection::query
+     * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
+     */
+    public function testHandlesFetchEndings(): void
+    {
+        // Populate database.
+        $this->conn
+            ->query(<<<SQL
+                CREATE TABLE testing (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    first_name VARCHAR(128),
+                    last_name VARCHAR(128)
+                )
+                SQL)
+            ->query(<<<SQL
+                INSERT INTO testing (first_name, last_name)
+                VALUES ('John', 'Doe'),
+                    ('Vera', 'Fooberg'),
+                    ('Mary', 'Barbaz')
+                SQL);
+        
+        // Test with single row result.
+        $query = "SELECT * FROM testing WHERE first_name = 'John'";
+        $this->conn->query($query);
+        $this->assertIsArray($this->conn->fetchAssoc());
+        $this->assertNull($this->conn->fetchAssoc());
+        $this->conn->query($query);
+        $this->assertIsObject($this->conn->fetchClass(ExampleEntity::class));
+        $this->assertNull($this->conn->fetchClass(ExampleEntity::class));
+        $this->conn->query($query);
+        $this->assertIsObject($this->conn->fetchInto(new \stdClass()));
+        $this->assertNull($this->conn->fetchInto(new \stdClass()));
+        $this->conn->query($query);
+        $this->assertIsArray($this->conn->fetchNum());
+        $this->assertNull($this->conn->fetchNum());
+
+        // Test with empty result.
+        $query = "SELECT * FROM testing WHERE first_name = 'Bill'";
+    }
+
+    /**
      * @covers ::getLastId
      * @uses Laucov\Db\Data\Connection::__construct
      * @uses Laucov\Db\Data\Driver\DriverFactory::createDriver
